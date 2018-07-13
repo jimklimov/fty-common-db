@@ -18,15 +18,16 @@
  *
  */
 
-#include "fty-common/db/dbpath.h"
-#include "fty-common/log/fty_log.h"
+#include "fty_common_db_classes.h"
+//#include "fty-common/db/dbpath.h"
+//#include "fty-common/log/fty_log.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <fstream>
 #include <string.h>
 #include <stdlib.h>
-#include "fty-common/common/filesystem.h"
+#include <fty-common/common/filesystem.h>
 
 static std::string
 s_get_dbpath_wo_trace() {

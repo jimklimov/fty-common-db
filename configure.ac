@@ -13,7 +13,7 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.61)
 #
-AC_INIT([fty-common],[1.0.0],[eatonipcopensource@eaton.com])
+AC_INIT([fty-common-db],[1.0.0],[eatonipcopensource@eaton.com])
 
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR(config)
@@ -26,11 +26,11 @@ PV_MAJOR=`echo $PACKAGE_VERSION | cut -d . -f 1`
 PV_MINOR=`echo $PACKAGE_VERSION | cut -d . -f 2`
 PV_PATCH=`echo $PACKAGE_VERSION | cut -d . -f 3`
 AC_DEFINE_UNQUOTED([PACKAGE_VERSION_MAJOR],[$PV_MAJOR],
-    [FTY_COMMON major version])
+    [FTY_COMMON_DB major version])
 AC_DEFINE_UNQUOTED([PACKAGE_VERSION_MINOR],[$PV_MINOR],
-    [FTY_COMMON minor version])
+    [FTY_COMMON_DB minor version])
 AC_DEFINE_UNQUOTED([PACKAGE_VERSION_PATCH],[$PV_PATCH],
-    [FTY_COMMON patchlevel])
+    [FTY_COMMON_DB patchlevel])
 # This lets us use PACKAGE_VERSION in Makefiles
 AC_SUBST(PACKAGE_VERSION)
 
@@ -41,7 +41,7 @@ AC_SUBST(PACKAGE_VERSION)
 # know exactly what you're doing and have read and understand
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 #
-# libfty_common -version-info
+# libfty_common_db -version-info
 LTVER="1:0:0"
 AC_SUBST(LTVER)
 
@@ -49,7 +49,7 @@ AC_SUBST(LTVER)
 AM_CONDITIONAL([USING_VPATH], [test "x${srcdir}" != "x."])
 
 # Capture c flags
-FTY_COMMON_ORIG_CFLAGS="${CFLAGS:-none}"
+FTY_COMMON_DB_ORIG_CFLAGS="${CFLAGS:-none}"
 
 # Checks for programs
 AC_PROG_CC
@@ -75,13 +75,13 @@ AM_CONDITIONAL(WITH_CPPCHECK, $WITH_CPPCHECK)
 AC_MSG_CHECKING([whether to enable GCov])
 AC_ARG_WITH(gcov, [AS_HELP_STRING([--with-gcov=yes/no],
                   [With GCC Code Coverage reporting])],
-                  [FTY_COMMON_GCOV="$withval"])
+                  [FTY_COMMON_DB_GCOV="$withval"])
 
-if test "x${FTY_COMMON_GCOV}" == "xyes"; then
+if test "x${FTY_COMMON_DB_GCOV}" == "xyes"; then
     CFLAGS="-O0 -g -fprofile-arcs -ftest-coverage"
 
-    if test "x${FTY_COMMON_ORIG_CFLAGS}" != "xnone"; then
-        CFLAGS="${CFLAGS} ${FTY_COMMON_ORIG_CFLAGS}"
+    if test "x${FTY_COMMON_DB_ORIG_CFLAGS}" != "xnone"; then
+        CFLAGS="${CFLAGS} ${FTY_COMMON_DB_ORIG_CFLAGS}"
     fi
     AM_CONDITIONAL(WITH_GCOV, true)
     AC_MSG_RESULT([yes])
@@ -94,9 +94,9 @@ fi
 AC_MSG_CHECKING([whether to enable ASan])
 AC_ARG_ENABLE(address-sanitizer, [AS_HELP_STRING([--enable-address-sanitizer=yes/no],
                   [Build with GCC Address Sanitizer instrumentation])],
-                  [FTY_COMMON_ASAN="$enableval"])
+                  [FTY_COMMON_DB_ASAN="$enableval"])
 
-if test "x${FTY_COMMON_ASAN}" == "xyes"; then
+if test "x${FTY_COMMON_DB_ASAN}" == "xyes"; then
     CFLAGS="${CFLAGS} -fsanitize=address"
     CXXFLAGS="${CXXFLAGS} -fsanitize=address"
 
@@ -143,427 +143,6 @@ PREVIOUS_CFLAGS="${CFLAGS}"
 PREVIOUS_LIBS="${LIBS}"
 
 
-was_libsodium_check_lib_detected=no
-
-search_libsodium="yes"
-
-AC_ARG_WITH([libsodium],
-    [
-        AS_HELP_STRING([--with-libsodium],
-        [yes or no. Optionally specify libsodium prefix (directory where its include/ and lib/ are located), but that is only used if pkgconfig metadata is not found first])
-    ],
-    [
-        search_libsodium="yes"
-    ],
-    [
-        search_libsodium="yes"
-    ])
-AS_CASE([x"${with_libsodium}"],
-    [xyes], [search_libsodium="yes"],
-    [xno],  [search_libsodium="no"])
-
-dnl We do not abort right now, because the maintainer/developer may have
-dnl something particular in mind, e.g. to build just parts of a project.
-AS_IF([test x"${search_libsodium}" = xno],
-    [AC_MSG_WARN([Required dependency on libsodium was explicitly disabled during configuration by '--with-libsodium=no'; subsequent full build of fty-common may fail])])
-
-AS_IF([test x"${search_libsodium}" = xyes], [
-    # Archive previously detected and supplied flags
-    PRE_SEARCH_CFLAGS="${CFLAGS}"
-    PRE_SEARCH_LIBS="${LIBS}"
-
-    found_pkgconfig=""
-    found_linkname=""
-    PKG_CHECK_MODULES([libsodium], [libsodium >= 0.0.0],
-    [
-        PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $libsodium_LIBS"
-        was_libsodium_check_lib_detected=pkgcfg
-        found_pkgconfig="libsodium"
-    ],
-    [
-        AC_MSG_NOTICE([Package libsodium not found; falling back to defined compilability tests])
-
-        libsodium_synthetic_cflags=""
-        libsodium_synthetic_libs="-lsodium"
-
-        if test -n "${with_libsodium}" && test x"${with_libsodium}" != xyes && test x"${with_libsodium}" != xno; then
-            if test -r "${with_libsodium}/include/sodium.h"; then
-                libsodium_synthetic_cflags="-I${with_libsodium}/include"
-                libsodium_synthetic_libs="-L${with_libsodium}/lib -lsodium"
-            else
-            AC_MSG_ERROR([Header file ${with_libsodium}/include/sodium.h was not found. Please check libsodium prefix])
-            fi
-        else
-            AC_CHECK_HEADER([sodium.h], [],
-            AC_MSG_ERROR([Header file sodium.h was not found in default search paths])
-                )
-        fi
-
-        AC_CHECK_LIB([sodium], [sodium_init],
-            [
-                was_libsodium_check_lib_detected=yes
-                PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE -lsodium"
-                found_linkname="sodium"
-            ],
-            [AC_MSG_ERROR([cannot link with -lsodium, install libsodium])])
-    ])
-
-dnl END of PKG_CHECK_MODULES and/or direct tests for libsodium
-    AS_CASE(["x${was_libsodium_check_lib_detected}"],
-        [xpkgcfg], [
-                AC_SUBST([pkgconfig_name_libsodium],[${found_pkgconfig}])
-                CFLAGS="${libsodium_CFLAGS} ${CFLAGS}"
-                LIBS="${libsodium_LIBS} ${LIBS}"
-            ],
-        [xyes], [
-                AC_SUBST([pkgconfig_name_libsodium],[${found_linkname}])
-                CFLAGS="${libsodium_synthetic_cflags} ${CFLAGS}"
-                LDFLAGS="${libsodium_synthetic_libs} ${LDFLAGS}"
-                LIBS="${libsodium_synthetic_libs} ${LIBS}"
-
-                AC_SUBST([libsodium_CFLAGS],[${libsodium_synthetic_cflags}])
-                AC_SUBST([libsodium_LIBS],[${libsodium_synthetic_libs}])
-            ],
-        [xno], [
-                AC_SUBST([pkgconfig_name_libsodium],[libsodium])
-            AC_MSG_ERROR([Cannot find pkg-config metadata for libsodium 0.0.0 or higher])
-    ])
-])
-dnl END of enabled attempts to search for libsodium
-
-
-was_libzmq_check_lib_detected=no
-
-search_libzmq="yes"
-
-AC_ARG_WITH([libzmq],
-    [
-        AS_HELP_STRING([--with-libzmq],
-        [yes or no. Optionally specify libzmq prefix (directory where its include/ and lib/ are located), but that is only used if pkgconfig metadata is not found first])
-    ],
-    [
-        search_libzmq="yes"
-    ],
-    [
-        search_libzmq="yes"
-    ])
-AS_CASE([x"${with_libzmq}"],
-    [xyes], [search_libzmq="yes"],
-    [xno],  [search_libzmq="no"])
-
-dnl We do not abort right now, because the maintainer/developer may have
-dnl something particular in mind, e.g. to build just parts of a project.
-AS_IF([test x"${search_libzmq}" = xno],
-    [AC_MSG_WARN([Required dependency on libzmq was explicitly disabled during configuration by '--with-libzmq=no'; subsequent full build of fty-common may fail])])
-
-AS_IF([test x"${search_libzmq}" = xyes], [
-    # Archive previously detected and supplied flags
-    PRE_SEARCH_CFLAGS="${CFLAGS}"
-    PRE_SEARCH_LIBS="${LIBS}"
-
-    found_pkgconfig=""
-    found_linkname=""
-    PKG_CHECK_MODULES([libzmq], [libzmq >= 0.0.0],
-    [
-        PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $libzmq_LIBS"
-        was_libzmq_check_lib_detected=pkgcfg
-        found_pkgconfig="libzmq"
-    ],
-    [
-        AC_MSG_NOTICE([Package libzmq not found; falling back to defined compilability tests])
-
-        libzmq_synthetic_cflags=""
-        libzmq_synthetic_libs="-lzmq"
-
-        if test -n "${with_libzmq}" && test x"${with_libzmq}" != xyes && test x"${with_libzmq}" != xno; then
-            if test -r "${with_libzmq}/include/zmq.h"; then
-                libzmq_synthetic_cflags="-I${with_libzmq}/include"
-                libzmq_synthetic_libs="-L${with_libzmq}/lib -lzmq"
-            else
-            AC_MSG_ERROR([Header file ${with_libzmq}/include/zmq.h was not found. Please check libzmq prefix])
-            fi
-        else
-            AC_CHECK_HEADER([zmq.h], [],
-            AC_MSG_ERROR([Header file zmq.h was not found in default search paths])
-                )
-        fi
-
-        AC_CHECK_LIB([zmq], [zmq_init],
-            [
-                was_libzmq_check_lib_detected=yes
-                PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE -lzmq"
-                found_linkname="zmq"
-            ],
-            [AC_MSG_ERROR([cannot link with -lzmq, install libzmq])])
-    ])
-
-dnl END of PKG_CHECK_MODULES and/or direct tests for libzmq
-    AS_CASE(["x${was_libzmq_check_lib_detected}"],
-        [xpkgcfg], [
-                AC_SUBST([pkgconfig_name_libzmq],[${found_pkgconfig}])
-                CFLAGS="${libzmq_CFLAGS} ${CFLAGS}"
-                LIBS="${libzmq_LIBS} ${LIBS}"
-            ],
-        [xyes], [
-                AC_SUBST([pkgconfig_name_libzmq],[${found_linkname}])
-                CFLAGS="${libzmq_synthetic_cflags} ${CFLAGS}"
-                LDFLAGS="${libzmq_synthetic_libs} ${LDFLAGS}"
-                LIBS="${libzmq_synthetic_libs} ${LIBS}"
-
-                AC_SUBST([libzmq_CFLAGS],[${libzmq_synthetic_cflags}])
-                AC_SUBST([libzmq_LIBS],[${libzmq_synthetic_libs}])
-            ],
-        [xno], [
-                AC_SUBST([pkgconfig_name_libzmq],[libzmq])
-            AC_MSG_ERROR([Cannot find pkg-config metadata for libzmq 0.0.0 or higher])
-    ])
-])
-dnl END of enabled attempts to search for libzmq
-
-
-was_czmq_check_lib_detected=no
-
-search_libczmq="yes"
-
-AC_ARG_WITH([libczmq],
-    [
-        AS_HELP_STRING([--with-libczmq],
-        [yes or no. Optionally specify libczmq prefix (directory where its include/ and lib/ are located), but that is only used if pkgconfig metadata is not found first])
-    ],
-    [
-        search_libczmq="yes"
-    ],
-    [
-        search_libczmq="yes"
-    ])
-AS_CASE([x"${with_libczmq}"],
-    [xyes], [search_libczmq="yes"],
-    [xno],  [search_libczmq="no"])
-
-dnl We do not abort right now, because the maintainer/developer may have
-dnl something particular in mind, e.g. to build just parts of a project.
-AS_IF([test x"${search_libczmq}" = xno],
-    [AC_MSG_WARN([Required dependency on czmq was explicitly disabled during configuration by '--with-libczmq=no'; subsequent full build of fty-common may fail])])
-
-AS_IF([test x"${search_libczmq}" = xyes], [
-    # Archive previously detected and supplied flags
-    PRE_SEARCH_CFLAGS="${CFLAGS}"
-    PRE_SEARCH_LIBS="${LIBS}"
-
-    found_pkgconfig=""
-    found_linkname=""
-    PKG_CHECK_MODULES([czmq], [libczmq >= 3.0.2],
-    [
-        PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $czmq_LIBS"
-        was_czmq_check_lib_detected=pkgcfg
-        found_pkgconfig="libczmq"
-    ],
-    [
-        AC_MSG_NOTICE([Package libczmq not found with needed constraints; falling back to defined compilability tests])
-
-        czmq_synthetic_cflags=""
-        czmq_synthetic_libs="-lczmq"
-
-        if test -n "${with_libczmq}" && test x"${with_libczmq}" != xyes && test x"${with_libczmq}" != xno; then
-            if test -r "${with_libczmq}/include/czmq.h"; then
-                czmq_synthetic_cflags="-I${with_libczmq}/include"
-                czmq_synthetic_libs="-L${with_libczmq}/lib -lczmq"
-            else
-            AC_MSG_ERROR([Header file ${with_libczmq}/include/czmq.h was not found. Please check libczmq prefix])
-            fi
-        else
-            AC_CHECK_HEADER([czmq.h], [],
-            AC_MSG_ERROR([Header file czmq.h was not found in default search paths])
-                )
-        fi
-
-        AC_CHECK_LIB([czmq], [zhashx_test],
-            [
-                was_czmq_check_lib_detected=yes
-                PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE -lczmq"
-                found_linkname="czmq"
-            ],
-            [AC_MSG_ERROR([cannot link with -lczmq, install libczmq])])
-    ])
-
-dnl END of PKG_CHECK_MODULES and/or direct tests for libczmq
-    AS_CASE(["x${was_czmq_check_lib_detected}"],
-        [xpkgcfg], [
-                AC_SUBST([pkgconfig_name_libczmq],[${found_pkgconfig}])
-                CFLAGS="${czmq_CFLAGS} ${CFLAGS}"
-                LIBS="${czmq_LIBS} ${LIBS}"
-            ],
-        [xyes], [
-                AC_SUBST([pkgconfig_name_libczmq],[${found_linkname}])
-                CFLAGS="${czmq_synthetic_cflags} ${CFLAGS}"
-                LDFLAGS="${czmq_synthetic_libs} ${LDFLAGS}"
-                LIBS="${czmq_synthetic_libs} ${LIBS}"
-
-                AC_SUBST([czmq_CFLAGS],[${czmq_synthetic_cflags}])
-                AC_SUBST([czmq_LIBS],[${czmq_synthetic_libs}])
-            ],
-        [xno], [
-                AC_SUBST([pkgconfig_name_libczmq],[libczmq])
-            AC_MSG_ERROR([Cannot find pkg-config metadata for libczmq 3.0.2 or higher])
-    ])
-])
-dnl END of enabled attempts to search for libczmq
-
-
-was_cxxtools_check_lib_detected=no
-
-search_cxxtools="yes"
-
-AC_ARG_WITH([cxxtools],
-    [
-        AS_HELP_STRING([--with-cxxtools],
-        [yes or no. Optionally specify cxxtools prefix (directory where its include/ and lib/ are located), but that is only used if pkgconfig metadata is not found first])
-    ],
-    [
-        search_cxxtools="yes"
-    ],
-    [
-        search_cxxtools="yes"
-    ])
-AS_CASE([x"${with_cxxtools}"],
-    [xyes], [search_cxxtools="yes"],
-    [xno],  [search_cxxtools="no"])
-
-dnl We do not abort right now, because the maintainer/developer may have
-dnl something particular in mind, e.g. to build just parts of a project.
-AS_IF([test x"${search_cxxtools}" = xno],
-    [AC_MSG_WARN([Required dependency on cxxtools was explicitly disabled during configuration by '--with-cxxtools=no'; subsequent full build of fty-common may fail])])
-
-AS_IF([test x"${search_cxxtools}" = xyes], [
-    # Archive previously detected and supplied flags
-    PRE_SEARCH_CFLAGS="${CFLAGS}"
-    PRE_SEARCH_LIBS="${LIBS}"
-
-    found_pkgconfig=""
-    found_linkname=""
-    PKG_CHECK_MODULES([cxxtools], [cxxtools >= 0.0.0],
-    [
-        PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $cxxtools_LIBS"
-        was_cxxtools_check_lib_detected=pkgcfg
-        found_pkgconfig="cxxtools"
-    ],
-    [
-        AC_MSG_NOTICE([Package cxxtools not found; falling back to defined compilability tests])
-
-        cxxtools_synthetic_cflags=""
-        cxxtools_synthetic_libs="-lcxxtools"
-
-        if test -n "${with_cxxtools}" && test x"${with_cxxtools}" != xyes && test x"${with_cxxtools}" != xno; then
-            if test -r "${with_cxxtools}/include/cxxtools/allocator.h"; then
-                cxxtools_synthetic_cflags="-I${with_cxxtools}/include"
-                cxxtools_synthetic_libs="-L${with_cxxtools}/lib -lcxxtools"
-            else
-            AC_MSG_ERROR([Header file ${with_cxxtools}/include/cxxtools/allocator.h was not found. Please check cxxtools prefix])
-            fi
-        else
-            AC_CHECK_HEADER([cxxtools/allocator.h], [],
-            AC_MSG_ERROR([Header file cxxtools/allocator.h was not found in default search paths])
-                )
-        fi
-
-        AC_CHECK_LIB([cxxtools], [cxxtools::Utf8Codec::Utf8Codec],
-            [
-                was_cxxtools_check_lib_detected=yes
-                PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE -lcxxtools"
-                found_linkname="cxxtools"
-            ],
-            [AC_MSG_ERROR([cannot link with -lcxxtools, install cxxtools])])
-    ])
-
-dnl END of PKG_CHECK_MODULES and/or direct tests for cxxtools
-    AS_CASE(["x${was_cxxtools_check_lib_detected}"],
-        [xpkgcfg], [
-                AC_SUBST([pkgconfig_name_cxxtools],[${found_pkgconfig}])
-                CFLAGS="${cxxtools_CFLAGS} ${CFLAGS}"
-                LIBS="${cxxtools_LIBS} ${LIBS}"
-            ],
-        [xyes], [
-                AC_SUBST([pkgconfig_name_cxxtools],[${found_linkname}])
-                CFLAGS="${cxxtools_synthetic_cflags} ${CFLAGS}"
-                LDFLAGS="${cxxtools_synthetic_libs} ${LDFLAGS}"
-                LIBS="${cxxtools_synthetic_libs} ${LIBS}"
-
-                AC_SUBST([cxxtools_CFLAGS],[${cxxtools_synthetic_cflags}])
-                AC_SUBST([cxxtools_LIBS],[${cxxtools_synthetic_libs}])
-            ],
-        [xno], [
-                AC_SUBST([pkgconfig_name_cxxtools],[cxxtools])
-            AC_MSG_ERROR([Cannot find pkg-config metadata for cxxtools 0.0.0 or higher])
-    ])
-])
-dnl END of enabled attempts to search for cxxtools
-
-
-was_tntnet_check_lib_detected=no
-
-search_tntnet="yes"
-
-AC_ARG_WITH([tntnet],
-    [
-        AS_HELP_STRING([--with-tntnet],
-        [yes or no. Optionally specify tntnet prefix (directory where its include/ and lib/ are located), but that is only used if pkgconfig metadata is not found first])
-    ],
-    [
-        search_tntnet="yes"
-    ],
-    [
-        search_tntnet="yes"
-    ])
-AS_CASE([x"${with_tntnet}"],
-    [xyes], [search_tntnet="yes"],
-    [xno],  [search_tntnet="no"])
-
-dnl We do not abort right now, because the maintainer/developer may have
-dnl something particular in mind, e.g. to build just parts of a project.
-AS_IF([test x"${search_tntnet}" = xno],
-    [AC_MSG_WARN([Required dependency on tntnet was explicitly disabled during configuration by '--with-tntnet=no'; subsequent full build of fty-common may fail])])
-
-AS_IF([test x"${search_tntnet}" = xyes], [
-    # Archive previously detected and supplied flags
-    PRE_SEARCH_CFLAGS="${CFLAGS}"
-    PRE_SEARCH_LIBS="${LIBS}"
-
-    found_pkgconfig=""
-    found_linkname=""
-    PKG_CHECK_MODULES([tntnet], [tntnet >= 0.0.0],
-    [
-        PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $tntnet_LIBS"
-        was_tntnet_check_lib_detected=pkgcfg
-        found_pkgconfig="tntnet"
-    ],
-    [
-        AC_MSG_WARN([Attribute 'test' is not set on zproject dependency 'tntnet' - please ensure it is set])
-    ])
-
-dnl END of PKG_CHECK_MODULES and/or direct tests for tntnet
-    AS_CASE(["x${was_tntnet_check_lib_detected}"],
-        [xpkgcfg], [
-                AC_SUBST([pkgconfig_name_tntnet],[${found_pkgconfig}])
-                CFLAGS="${tntnet_CFLAGS} ${CFLAGS}"
-                LIBS="${tntnet_LIBS} ${LIBS}"
-            ],
-        [xyes], [
-                AC_SUBST([pkgconfig_name_tntnet],[${found_linkname}])
-                CFLAGS="${tntnet_synthetic_cflags} ${CFLAGS}"
-                LDFLAGS="${tntnet_synthetic_libs} ${LDFLAGS}"
-                LIBS="${tntnet_synthetic_libs} ${LIBS}"
-
-                AC_SUBST([tntnet_CFLAGS],[${tntnet_synthetic_cflags}])
-                AC_SUBST([tntnet_LIBS],[${tntnet_synthetic_libs}])
-            ],
-        [xno], [
-                AC_SUBST([pkgconfig_name_tntnet],[tntnet])
-            AC_MSG_ERROR([Cannot find pkg-config metadata for tntnet 0.0.0 or higher])
-    ])
-])
-dnl END of enabled attempts to search for tntnet
-
-
 was_tntdb_check_lib_detected=no
 
 search_tntdb="yes"
@@ -586,7 +165,7 @@ AS_CASE([x"${with_tntdb}"],
 dnl We do not abort right now, because the maintainer/developer may have
 dnl something particular in mind, e.g. to build just parts of a project.
 AS_IF([test x"${search_tntdb}" = xno],
-    [AC_MSG_WARN([Required dependency on tntdb was explicitly disabled during configuration by '--with-tntdb=no'; subsequent full build of fty-common may fail])])
+    [AC_MSG_WARN([Required dependency on tntdb was explicitly disabled during configuration by '--with-tntdb=no'; subsequent full build of fty-common-db may fail])])
 
 AS_IF([test x"${search_tntdb}" = xyes], [
     # Archive previously detected and supplied flags
@@ -653,71 +232,6 @@ dnl END of PKG_CHECK_MODULES and/or direct tests for tntdb
 dnl END of enabled attempts to search for tntdb
 
 
-was_libsasl2_check_lib_detected=no
-
-search_libsasl2="yes"
-
-AC_ARG_WITH([libsasl2],
-    [
-        AS_HELP_STRING([--with-libsasl2],
-        [yes or no. Optionally specify libsasl2 prefix (directory where its include/ and lib/ are located), but that is only used if pkgconfig metadata is not found first])
-    ],
-    [
-        search_libsasl2="yes"
-    ],
-    [
-        search_libsasl2="yes"
-    ])
-AS_CASE([x"${with_libsasl2}"],
-    [xyes], [search_libsasl2="yes"],
-    [xno],  [search_libsasl2="no"])
-
-dnl We do not abort right now, because the maintainer/developer may have
-dnl something particular in mind, e.g. to build just parts of a project.
-AS_IF([test x"${search_libsasl2}" = xno],
-    [AC_MSG_WARN([Required dependency on libsasl2 was explicitly disabled during configuration by '--with-libsasl2=no'; subsequent full build of fty-common may fail])])
-
-AS_IF([test x"${search_libsasl2}" = xyes], [
-    # Archive previously detected and supplied flags
-    PRE_SEARCH_CFLAGS="${CFLAGS}"
-    PRE_SEARCH_LIBS="${LIBS}"
-
-    found_pkgconfig=""
-    found_linkname=""
-    PKG_CHECK_MODULES([libsasl2], [libsasl2 >= 0.0.0],
-    [
-        PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $libsasl2_LIBS"
-        was_libsasl2_check_lib_detected=pkgcfg
-        found_pkgconfig="libsasl2"
-    ],
-    [
-        AC_MSG_WARN([Attribute 'test' is not set on zproject dependency 'libsasl2' - please ensure it is set])
-    ])
-
-dnl END of PKG_CHECK_MODULES and/or direct tests for libsasl2
-    AS_CASE(["x${was_libsasl2_check_lib_detected}"],
-        [xpkgcfg], [
-                AC_SUBST([pkgconfig_name_libsasl2],[${found_pkgconfig}])
-                CFLAGS="${libsasl2_CFLAGS} ${CFLAGS}"
-                LIBS="${libsasl2_LIBS} ${LIBS}"
-            ],
-        [xyes], [
-                AC_SUBST([pkgconfig_name_libsasl2],[${found_linkname}])
-                CFLAGS="${libsasl2_synthetic_cflags} ${CFLAGS}"
-                LDFLAGS="${libsasl2_synthetic_libs} ${LDFLAGS}"
-                LIBS="${libsasl2_synthetic_libs} ${LIBS}"
-
-                AC_SUBST([libsasl2_CFLAGS],[${libsasl2_synthetic_cflags}])
-                AC_SUBST([libsasl2_LIBS],[${libsasl2_synthetic_libs}])
-            ],
-        [xno], [
-                AC_SUBST([pkgconfig_name_libsasl2],[libsasl2])
-            AC_MSG_ERROR([Cannot find pkg-config metadata for libsasl2 0.0.0 or higher])
-    ])
-])
-dnl END of enabled attempts to search for libsasl2
-
-
 was_log4cplus_check_lib_detected=no
 
 search_log4cplus="yes"
@@ -740,7 +254,7 @@ AS_CASE([x"${with_log4cplus}"],
 dnl We do not abort right now, because the maintainer/developer may have
 dnl something particular in mind, e.g. to build just parts of a project.
 AS_IF([test x"${search_log4cplus}" = xno],
-    [AC_MSG_WARN([Required dependency on log4cplus was explicitly disabled during configuration by '--with-log4cplus=no'; subsequent full build of fty-common may fail])])
+    [AC_MSG_WARN([Required dependency on log4cplus was explicitly disabled during configuration by '--with-log4cplus=no'; subsequent full build of fty-common-db may fail])])
 
 AS_IF([test x"${search_log4cplus}" = xyes], [
     # Archive previously detected and supplied flags
@@ -807,69 +321,182 @@ dnl END of PKG_CHECK_MODULES and/or direct tests for log4cplus
 dnl END of enabled attempts to search for log4cplus
 
 
-was_openssl_check_lib_detected=no
+was_cxxtools_check_lib_detected=no
 
-search_openssl="yes"
+search_cxxtools="yes"
 
-AC_ARG_WITH([openssl],
+AC_ARG_WITH([cxxtools],
     [
-        AS_HELP_STRING([--with-openssl],
-        [yes or no. Optionally specify openssl prefix (directory where its include/ and lib/ are located), but that is only used if pkgconfig metadata is not found first])
+        AS_HELP_STRING([--with-cxxtools],
+        [yes or no. Optionally specify cxxtools prefix (directory where its include/ and lib/ are located), but that is only used if pkgconfig metadata is not found first])
     ],
     [
-        search_openssl="yes"
+        search_cxxtools="yes"
     ],
     [
-        search_openssl="yes"
+        search_cxxtools="yes"
     ])
-AS_CASE([x"${with_openssl}"],
-    [xyes], [search_openssl="yes"],
-    [xno],  [search_openssl="no"])
+AS_CASE([x"${with_cxxtools}"],
+    [xyes], [search_cxxtools="yes"],
+    [xno],  [search_cxxtools="no"])
 
 dnl We do not abort right now, because the maintainer/developer may have
 dnl something particular in mind, e.g. to build just parts of a project.
-AS_IF([test x"${search_openssl}" = xno],
-    [AC_MSG_WARN([Required dependency on openssl was explicitly disabled during configuration by '--with-openssl=no'; subsequent full build of fty-common may fail])])
+AS_IF([test x"${search_cxxtools}" = xno],
+    [AC_MSG_WARN([Required dependency on cxxtools was explicitly disabled during configuration by '--with-cxxtools=no'; subsequent full build of fty-common-db may fail])])
 
-AS_IF([test x"${search_openssl}" = xyes], [
+AS_IF([test x"${search_cxxtools}" = xyes], [
     # Archive previously detected and supplied flags
     PRE_SEARCH_CFLAGS="${CFLAGS}"
     PRE_SEARCH_LIBS="${LIBS}"
 
     found_pkgconfig=""
     found_linkname=""
-    PKG_CHECK_MODULES([openssl], [openssl >= 0.0.0],
+    PKG_CHECK_MODULES([cxxtools], [cxxtools >= 0.0.0],
     [
-        PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $openssl_LIBS"
-        was_openssl_check_lib_detected=pkgcfg
-        found_pkgconfig="openssl"
+        PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $cxxtools_LIBS"
+        was_cxxtools_check_lib_detected=pkgcfg
+        found_pkgconfig="cxxtools"
     ],
     [
-        AC_MSG_WARN([Attribute 'test' is not set on zproject dependency 'openssl' - please ensure it is set])
+        AC_MSG_NOTICE([Package cxxtools not found; falling back to defined compilability tests])
+
+        cxxtools_synthetic_cflags=""
+        cxxtools_synthetic_libs="-lcxxtools"
+
+        if test -n "${with_cxxtools}" && test x"${with_cxxtools}" != xyes && test x"${with_cxxtools}" != xno; then
+            if test -r "${with_cxxtools}/include/cxxtools/allocator.h"; then
+                cxxtools_synthetic_cflags="-I${with_cxxtools}/include"
+                cxxtools_synthetic_libs="-L${with_cxxtools}/lib -lcxxtools"
+            else
+            AC_MSG_ERROR([Header file ${with_cxxtools}/include/cxxtools/allocator.h was not found. Please check cxxtools prefix])
+            fi
+        else
+            AC_CHECK_HEADER([cxxtools/allocator.h], [],
+            AC_MSG_ERROR([Header file cxxtools/allocator.h was not found in default search paths])
+                )
+        fi
+
+        AC_CHECK_LIB([cxxtools], [cxxtools::Utf8Codec::Utf8Codec],
+            [
+                was_cxxtools_check_lib_detected=yes
+                PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE -lcxxtools"
+                found_linkname="cxxtools"
+            ],
+            [AC_MSG_ERROR([cannot link with -lcxxtools, install cxxtools])])
     ])
 
-dnl END of PKG_CHECK_MODULES and/or direct tests for openssl
-    AS_CASE(["x${was_openssl_check_lib_detected}"],
+dnl END of PKG_CHECK_MODULES and/or direct tests for cxxtools
+    AS_CASE(["x${was_cxxtools_check_lib_detected}"],
         [xpkgcfg], [
-                AC_SUBST([pkgconfig_name_openssl],[${found_pkgconfig}])
-                CFLAGS="${openssl_CFLAGS} ${CFLAGS}"
-                LIBS="${openssl_LIBS} ${LIBS}"
+                AC_SUBST([pkgconfig_name_cxxtools],[${found_pkgconfig}])
+                CFLAGS="${cxxtools_CFLAGS} ${CFLAGS}"
+                LIBS="${cxxtools_LIBS} ${LIBS}"
             ],
         [xyes], [
-                AC_SUBST([pkgconfig_name_openssl],[${found_linkname}])
-                CFLAGS="${openssl_synthetic_cflags} ${CFLAGS}"
-                LDFLAGS="${openssl_synthetic_libs} ${LDFLAGS}"
-                LIBS="${openssl_synthetic_libs} ${LIBS}"
+                AC_SUBST([pkgconfig_name_cxxtools],[${found_linkname}])
+                CFLAGS="${cxxtools_synthetic_cflags} ${CFLAGS}"
+                LDFLAGS="${cxxtools_synthetic_libs} ${LDFLAGS}"
+                LIBS="${cxxtools_synthetic_libs} ${LIBS}"
 
-                AC_SUBST([openssl_CFLAGS],[${openssl_synthetic_cflags}])
-                AC_SUBST([openssl_LIBS],[${openssl_synthetic_libs}])
+                AC_SUBST([cxxtools_CFLAGS],[${cxxtools_synthetic_cflags}])
+                AC_SUBST([cxxtools_LIBS],[${cxxtools_synthetic_libs}])
             ],
         [xno], [
-                AC_SUBST([pkgconfig_name_openssl],[openssl])
-            AC_MSG_ERROR([Cannot find pkg-config metadata for openssl 0.0.0 or higher])
+                AC_SUBST([pkgconfig_name_cxxtools],[cxxtools])
+            AC_MSG_ERROR([Cannot find pkg-config metadata for cxxtools 0.0.0 or higher])
     ])
 ])
-dnl END of enabled attempts to search for openssl
+dnl END of enabled attempts to search for cxxtools
+
+
+was_fty_common_logging_check_lib_detected=no
+
+search_libfty_common_logging="yes"
+
+AC_ARG_WITH([libfty_common_logging],
+    [
+        AS_HELP_STRING([--with-libfty_common_logging],
+        [yes or no. Optionally specify libfty_common_logging prefix (directory where its include/ and lib/ are located), but that is only used if pkgconfig metadata is not found first])
+    ],
+    [
+        search_libfty_common_logging="yes"
+    ],
+    [
+        search_libfty_common_logging="yes"
+    ])
+AS_CASE([x"${with_libfty_common_logging}"],
+    [xyes], [search_libfty_common_logging="yes"],
+    [xno],  [search_libfty_common_logging="no"])
+
+dnl We do not abort right now, because the maintainer/developer may have
+dnl something particular in mind, e.g. to build just parts of a project.
+AS_IF([test x"${search_libfty_common_logging}" = xno],
+    [AC_MSG_WARN([Required dependency on fty_common_logging was explicitly disabled during configuration by '--with-libfty_common_logging=no'; subsequent full build of fty-common-db may fail])])
+
+AS_IF([test x"${search_libfty_common_logging}" = xyes], [
+    # Archive previously detected and supplied flags
+    PRE_SEARCH_CFLAGS="${CFLAGS}"
+    PRE_SEARCH_LIBS="${LIBS}"
+
+    found_pkgconfig=""
+    found_linkname=""
+    PKG_CHECK_MODULES([fty_common_logging], [libfty_common_logging >= 0.0.0],
+    [
+        PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $fty_common_logging_LIBS"
+        was_fty_common_logging_check_lib_detected=pkgcfg
+        found_pkgconfig="libfty_common_logging"
+    ],
+    [
+        AC_MSG_NOTICE([Package libfty_common_logging not found; falling back to defined compilability tests])
+
+        fty_common_logging_synthetic_cflags=""
+        fty_common_logging_synthetic_libs="-lfty-common-logging"
+
+        if test -n "${with_libfty_common_logging}" && test x"${with_libfty_common_logging}" != xyes && test x"${with_libfty_common_logging}" != xno; then
+            if test -r "${with_libfty_common_logging}/include/fty_log.h"; then
+                fty_common_logging_synthetic_cflags="-I${with_libfty_common_logging}/include"
+                fty_common_logging_synthetic_libs="-L${with_libfty_common_logging}/lib -lfty-common-logging"
+            else
+            AC_MSG_ERROR([Header file ${with_libfty_common_logging}/include/fty_log.h was not found. Please check libfty_common_logging prefix])
+            fi
+        else
+            AC_CHECK_HEADER([fty_log.h], [],
+            AC_MSG_ERROR([Header file fty_log.h was not found in default search paths])
+                )
+        fi
+
+        AC_CHECK_LIB([fty-common-logging], [fty_log_selftest],
+            [
+                was_fty_common_logging_check_lib_detected=yes
+                PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE -lfty-common-logging"
+                found_linkname="fty-common-logging"
+            ],
+            [AC_MSG_ERROR([cannot link with -lfty-common-logging, install libfty_common_logging])])
+    ])
+
+dnl END of PKG_CHECK_MODULES and/or direct tests for libfty_common_logging
+    AS_CASE(["x${was_fty_common_logging_check_lib_detected}"],
+        [xpkgcfg], [
+                AC_SUBST([pkgconfig_name_libfty_common_logging],[${found_pkgconfig}])
+                CFLAGS="${fty_common_logging_CFLAGS} ${CFLAGS}"
+                LIBS="${fty_common_logging_LIBS} ${LIBS}"
+            ],
+        [xyes], [
+                AC_SUBST([pkgconfig_name_libfty_common_logging],[${found_linkname}])
+                CFLAGS="${fty_common_logging_synthetic_cflags} ${CFLAGS}"
+                LDFLAGS="${fty_common_logging_synthetic_libs} ${LDFLAGS}"
+                LIBS="${fty_common_logging_synthetic_libs} ${LIBS}"
+
+                AC_SUBST([fty_common_logging_CFLAGS],[${fty_common_logging_synthetic_cflags}])
+                AC_SUBST([fty_common_logging_LIBS],[${fty_common_logging_synthetic_libs}])
+            ],
+        [xno], [
+                AC_SUBST([pkgconfig_name_libfty_common_logging],[libfty_common_logging])
+            AC_MSG_ERROR([Cannot find pkg-config metadata for libfty_common_logging 0.0.0 or higher])
+    ])
+])
+dnl END of enabled attempts to search for libfty_common_logging
 
 
 CFLAGS="${PREVIOUS_CFLAGS}"
@@ -878,11 +505,11 @@ LIBS="${PREVIOUS_LIBS}"
 AC_SUBST(pkg_config_libs_private, $PKGCFG_LIBS_PRIVATE)
 
 # Platform specific checks
-fty_common_on_mingw32="no"
-fty_common_on_cygwin="no"
-fty_common_on_android="no"
-fty_common_on_linux="no"
-fty_common_on_gnu="no"
+fty_common_db_on_mingw32="no"
+fty_common_db_on_cygwin="no"
+fty_common_db_on_android="no"
+fty_common_db_on_linux="no"
+fty_common_db_on_gnu="no"
 
 # Host specific checks
 AC_CANONICAL_HOST
@@ -895,49 +522,49 @@ AC_ARG_WITH([docs],
     [with_docs=$withval])
 
 if test "x$with_docs" = "xno"; then
-    fty_common_build_doc="no"
-    fty_common_install_man="no"
+    fty_common_db_build_doc="no"
+    fty_common_db_install_man="no"
 else
     # Determine whether or not documentation should be built and installed.
-    fty_common_build_doc="yes"
-    fty_common_install_man="yes"
+    fty_common_db_build_doc="yes"
+    fty_common_db_install_man="yes"
 
     # Check for asciidoc and xmlto and don't build the docs if these are not installed.
-    AC_CHECK_PROG(fty_common_have_asciidoc, asciidoc, yes, no)
-    AC_CHECK_PROG(fty_common_have_xmlto, xmlto, yes, no)
-    if test "x$fty_common_have_asciidoc" = "xno" -o "x$fty_common_have_xmlto" = "xno"; then
+    AC_CHECK_PROG(fty_common_db_have_asciidoc, asciidoc, yes, no)
+    AC_CHECK_PROG(fty_common_db_have_xmlto, xmlto, yes, no)
+    if test "x$fty_common_db_have_asciidoc" = "xno" -o "x$fty_common_db_have_xmlto" = "xno"; then
         if test "x$with_docs" = "xyes" ; then
             AC_MSG_ERROR([Build with docs was explicitly requested, but tools are not available])
         fi
-        fty_common_build_doc="no"
+        fty_common_db_build_doc="no"
         # Tarballs built with 'make dist' ship with prebuilt documentation.
-        if ! test -f doc/fty-common.7; then
-            fty_common_install_man="no"
-            AC_MSG_WARN([You are building an unreleased version of FTY-COMMON and asciidoc or xmlto are not installed.])
+        if ! test -f doc/fty-common-db.7; then
+            fty_common_db_install_man="no"
+            AC_MSG_WARN([You are building an unreleased version of FTY-COMMON-DB and asciidoc or xmlto are not installed.])
             AC_MSG_WARN([Documentation will not be built and manual pages will not be installed.])
         fi
     fi
 fi
 AC_MSG_CHECKING([whether to build documentation])
-AC_MSG_RESULT([$fty_common_build_doc])
+AC_MSG_RESULT([$fty_common_db_build_doc])
 AC_MSG_CHECKING([whether to install manpages])
-AC_MSG_RESULT([$fty_common_install_man])
+AC_MSG_RESULT([$fty_common_db_install_man])
 
-# Set some default features required by libfty_common code.
-CPPFLAGS="-DFTY_COMMON_INTERNAL_BUILD -D_REENTRANT -D_THREAD_SAFE $CPPFLAGS"
+# Set some default features required by libfty_common_db code.
+CPPFLAGS="-DFTY_COMMON_DB_INTERNAL_BUILD -D_REENTRANT -D_THREAD_SAFE $CPPFLAGS"
 
 # OS-specific tests
 case "${host_os}" in
     *linux*)
         # Define on Linux to enable all library features
         CPPFLAGS="-D_GNU_SOURCE -DLINUX $CPPFLAGS"
-        AC_DEFINE(FTY_COMMON_HAVE_LINUX, 1, [Have Linux OS])
-        fty_common_on_linux="yes"
+        AC_DEFINE(FTY_COMMON_DB_HAVE_LINUX, 1, [Have Linux OS])
+        fty_common_db_on_linux="yes"
 
         case "${host_os}" in
             *android*)
-                AC_DEFINE(FTY_COMMON_HAVE_ANDROID, 1, [Have Android OS])
-                fty_common_on_android="yes"
+                AC_DEFINE(FTY_COMMON_DB_HAVE_ANDROID, 1, [Have Android OS])
+                fty_common_db_on_android="yes"
             ;;
         esac
         ;;
@@ -946,74 +573,74 @@ case "${host_os}" in
         CPPFLAGS="-D_PTHREADS $CPPFLAGS"
         # Allow definitions of common OS-provided functions that are not in old standards
         CPPFLAGS="-D__EXTENSIONS__ $CPPFLAGS"
-        AC_DEFINE(FTY_COMMON_HAVE_SOLARIS, 1, [Have Solaris OS])
+        AC_DEFINE(FTY_COMMON_DB_HAVE_SOLARIS, 1, [Have Solaris OS])
         CFLAGS="${CFLAGS} -lsocket -lssp"
         ;;
     *freebsd*)
         # Define on FreeBSD to enable all library features
         CPPFLAGS="-D__BSD_VISIBLE $CPPFLAGS"
-        AC_DEFINE(FTY_COMMON_HAVE_FREEBSD, 1, [Have FreeBSD OS])
+        AC_DEFINE(FTY_COMMON_DB_HAVE_FREEBSD, 1, [Have FreeBSD OS])
         ;;
     *darwin*)
         # Define on Darwin to enable all library features
         CPPFLAGS="-D_DARWIN_C_SOURCE $CPPFLAGS"
-        AC_DEFINE(FTY_COMMON_HAVE_OSX, 1, [Have DarwinOSX OS])
+        AC_DEFINE(FTY_COMMON_DB_HAVE_OSX, 1, [Have DarwinOSX OS])
         ;;
     *netbsd*)
         # Define on NetBSD to enable all library features
         CPPFLAGS="-D_NETBSD_SOURCE $CPPFLAGS"
-        AC_DEFINE(FTY_COMMON_HAVE_NETBSD, 1, [Have NetBSD OS])
+        AC_DEFINE(FTY_COMMON_DB_HAVE_NETBSD, 1, [Have NetBSD OS])
         ;;
     *openbsd*)
         # Define on OpenBSD to enable all library features
         CPPFLAGS="-D_BSD_SOURCE $CPPFLAGS"
-        AC_DEFINE(FTY_COMMON_HAVE_OPENBSD, 1, [Have OpenBSD OS])
+        AC_DEFINE(FTY_COMMON_DB_HAVE_OPENBSD, 1, [Have OpenBSD OS])
         ;;
     *nto-qnx*)
-        AC_DEFINE(FTY_COMMON_HAVE_QNXNTO, 1, [Have QNX Neutrino OS])
+        AC_DEFINE(FTY_COMMON_DB_HAVE_QNXNTO, 1, [Have QNX Neutrino OS])
         ;;
     *aix*)
-        AC_DEFINE(FTY_COMMON_HAVE_AIX, 1, [Have AIX OS])
+        AC_DEFINE(FTY_COMMON_DB_HAVE_AIX, 1, [Have AIX OS])
         ;;
     *hpux*)
         # Define on HP-UX to enable all library features
         CPPFLAGS="-D_POSIX_C_SOURCE=200112L"
-        AC_DEFINE(FTY_COMMON_HAVE_HPUX, 1, [Have HPUX OS])
+        AC_DEFINE(FTY_COMMON_DB_HAVE_HPUX, 1, [Have HPUX OS])
         ;;
     *mingw32*)
         # Disable format error due to incomplete ANSI C
         CFLAGS="-Wno-error=format -Wno-unused-function -Wno-unused-variable -D_XOPEN_SOURCE $CFLAGS"
         CPPFLAGS="-Wno-error=format -Wno-unused-function -Wno-unused-variable -D_XOPEN_SOURCE $CPPFLAGS"
-        AC_DEFINE(FTY_COMMON_HAVE_WINDOWS, 1, [Have Windows OS])
-        AC_DEFINE(FTY_COMMON_HAVE_MINGW32, 1, [Have MinGW32])
+        AC_DEFINE(FTY_COMMON_DB_HAVE_WINDOWS, 1, [Have Windows OS])
+        AC_DEFINE(FTY_COMMON_DB_HAVE_MINGW32, 1, [Have MinGW32])
         AC_CHECK_HEADERS(windows.h)
-        fty_common_on_mingw32="yes"
-        fty_common_install_man="no"
+        fty_common_db_on_mingw32="yes"
+        fty_common_db_install_man="no"
         ;;
     *mingw64*)
         # Define on MINGW64 to enable all libeary features
         # Disable format error due to incomplete ANSI C
         CFLAGS="-Wno-error=format -Wno-unused-function -Wno-unused-variable -D_XOPEN_SOURCE $CFLAGS"
         CPPFLAGS="-Wno-error=format -Wno-unused-function -Wno-unused-variable -D_XOPEN_SOURCE $CPPFLAGS"
-        AC_DEFINE(FTY_COMMON_HAVE_WINDOWS, 1, [Have Windows OS])
-        AC_DEFINE(FTY_COMMON_HAVE_MINGW32, 1, [Have MinGW32])
+        AC_DEFINE(FTY_COMMON_DB_HAVE_WINDOWS, 1, [Have Windows OS])
+        AC_DEFINE(FTY_COMMON_DB_HAVE_MINGW32, 1, [Have MinGW32])
         AC_CHECK_HEADERS(windows.h)
-        fty_common_on_mingw32="yes"
-        fty_common_install_man="no"
+        fty_common_db_on_mingw32="yes"
+        fty_common_db_install_man="no"
         ;;
     *cygwin*)
         # Define on Cygwin to enable all library features
         CPPFLAGS="-D_GNU_SOURCE $CPPFLAGS"
-        AC_DEFINE(FTY_COMMON_HAVE_CYGWIN, 1, [Have Cygwin])
-        fty_common_on_cygwin="yes"
+        AC_DEFINE(FTY_COMMON_DB_HAVE_CYGWIN, 1, [Have Cygwin])
+        fty_common_db_on_cygwin="yes"
         ;;
     gnu*)
         # Define on GNU/Hurd to enable all library features
         if test "x$GXX" = "xyes"; then
             CPPFLAGS="-D_GNU_SOURCE $CPPFLAGS"
         fi
-        AC_DEFINE(FTY_COMMON_HAVE_GNU, 1, [Have GNU/Hurd OS])
-        fty_common_on_gnu="yes"
+        AC_DEFINE(FTY_COMMON_DB_HAVE_GNU, 1, [Have GNU/Hurd OS])
+        fty_common_db_on_gnu="yes"
         ;;
     *)
         AC_MSG_ERROR([unsupported system: ${host_os}])
@@ -1045,13 +672,13 @@ AC_C_VOLATILE
 AC_C_BIGENDIAN
 
 AM_CONDITIONAL(ENABLE_SHARED, test "x$enable_shared" = "xyes")
-AM_CONDITIONAL(ON_MINGW, test "x$fty_common_on_mingw32" = "xyes")
-AM_CONDITIONAL(ON_CYGWIN, test "x$fty_common_on_cygwin" = "xyes")
-AM_CONDITIONAL(ON_ANDROID, test "x$fty_common_on_android" = "xyes")
-AM_CONDITIONAL(ON_LINUX, test "x$fty_common_on_linux" = "xyes")
-AM_CONDITIONAL(ON_GNU, test "x$fty_common_on_gnu" = "xyes")
-AM_CONDITIONAL(INSTALL_MAN, test "x$fty_common_install_man" = "xyes")
-AM_CONDITIONAL(BUILD_DOC, test "x$fty_common_build_doc" = "xyes")
+AM_CONDITIONAL(ON_MINGW, test "x$fty_common_db_on_mingw32" = "xyes")
+AM_CONDITIONAL(ON_CYGWIN, test "x$fty_common_db_on_cygwin" = "xyes")
+AM_CONDITIONAL(ON_ANDROID, test "x$fty_common_db_on_android" = "xyes")
+AM_CONDITIONAL(ON_LINUX, test "x$fty_common_db_on_linux" = "xyes")
+AM_CONDITIONAL(ON_GNU, test "x$fty_common_db_on_gnu" = "xyes")
+AM_CONDITIONAL(INSTALL_MAN, test "x$fty_common_db_install_man" = "xyes")
+AM_CONDITIONAL(BUILD_DOC, test "x$fty_common_db_build_doc" = "xyes")
 
 AC_ARG_ENABLE([dist_cmakefiles],
     AS_HELP_STRING([--enable-dist_cmakefiles],
@@ -1066,15 +693,15 @@ fi
      AC_MSG_RESULT([$enable_dist_cmakefiles])])
 AM_CONDITIONAL(ENABLE_DIST_CMAKEFILES, test "x$enable_dist_cmakefiles" = "xyes")
 
-# Check for fty_common_selftest intent
-AC_ARG_ENABLE([fty_common_selftest],
-    AS_HELP_STRING([--enable-fty_common_selftest],
-        [Compile 'fty_common_selftest' in src [default=yes]]),
-    [enable_fty_common_selftest=$enableval],
-    [enable_fty_common_selftest=yes])
+# Check for fty_common_db_selftest intent
+AC_ARG_ENABLE([fty_common_db_selftest],
+    AS_HELP_STRING([--enable-fty_common_db_selftest],
+        [Compile 'fty_common_db_selftest' in src [default=yes]]),
+    [enable_fty_common_db_selftest=$enableval],
+    [enable_fty_common_db_selftest=yes])
 
-AM_CONDITIONAL([ENABLE_FTY_COMMON_SELFTEST], [test x$enable_fty_common_selftest != xno])
-AM_COND_IF([ENABLE_FTY_COMMON_SELFTEST], [AC_MSG_NOTICE([ENABLE_FTY_COMMON_SELFTEST defined])])
+AM_CONDITIONAL([ENABLE_FTY_COMMON_DB_SELFTEST], [test x$enable_fty_common_db_selftest != xno])
+AM_COND_IF([ENABLE_FTY_COMMON_DB_SELFTEST], [AC_MSG_NOTICE([ENABLE_FTY_COMMON_DB_SELFTEST defined])])
 
 # Checks for library functions.
 AC_TYPE_SIGNAL
@@ -1088,8 +715,8 @@ AM_CONDITIONAL([ENABLE_DRAFTS], [test x$enable_drafts != xno])
 
 if test "x$enable_drafts" = "xyes"; then
     AC_MSG_NOTICE([Building stable and legacy API + draft API])
-    AC_DEFINE(FTY_COMMON_BUILD_DRAFT_API, 1, [Provide draft classes and methods])
-    AC_SUBST(pkg_config_defines, "-DFTY_COMMON_BUILD_DRAFT_API=1")
+    AC_DEFINE(FTY_COMMON_DB_BUILD_DRAFT_API, 1, [Provide draft classes and methods])
+    AC_SUBST(pkg_config_defines, "-DFTY_COMMON_DB_BUILD_DRAFT_API=1")
 else
     AC_MSG_NOTICE([Building stable and legacy API (no draft API)])
     AC_SUBST(pkg_config_defines, "")
@@ -1128,7 +755,7 @@ AS_IF([test "x$enable_Werror" = "xyes" || test "x$enable_Werror" = "xauto"],
 AC_CONFIG_FILES([Makefile
                  doc/Makefile
                  include/Makefile
-                 src/libfty_common.pc
+                 src/libfty_common_db.pc
                  ])
 
 
@@ -1169,12 +796,12 @@ echo C++ compiler.................. : $CXX
 echo C++ compiler flags............ : $CXXFLAGS
 echo Configure date................ : $BUILD_DATE
 echo Build architecture............ : $BUILD_ARCH
-echo Build docs.................... : $fty_common_build_doc
+echo Build docs.................... : $fty_common_db_build_doc
 echo Build host.................... : $BUILD_HOST
 echo Build user.................... : $USER
 echo Draft API..................... : $enable_drafts
 echo Install dir................... : $prefix
-echo Install man pages............. : $fty_common_install_man
+echo Install man pages............. : $fty_common_db_install_man
 
 echo
 echo Help:
