@@ -31,6 +31,7 @@
 
 //  External dependencies
 #include <tntdb.h>
+#include <fty_common.h>
 #include <fty_log.h>
 
 //  FTY_COMMON_DB version macros for compile-time API detection
@@ -79,14 +80,17 @@
 //  These classes are stable or legacy and built in all releases
 //  Draft classes are by default not built in stable releases
 #ifdef FTY_COMMON_DB_BUILD_DRAFT_API
-typedef struct _dbpath_t dbpath_t;
-#define DBPATH_T_DEFINED
+typedef struct _fty_common_db_dbpath_t fty_common_db_dbpath_t;
+#define FTY_COMMON_DB_DBPATH_T_DEFINED
+typedef struct _fty_common_db_asset_t fty_common_db_asset_t;
+#define FTY_COMMON_DB_ASSET_T_DEFINED
 #endif // FTY_COMMON_DB_BUILD_DRAFT_API
 
 
 //  Public classes, each with its own header file
 #ifdef FTY_COMMON_DB_BUILD_DRAFT_API
-#include "dbpath.h"
+#include "fty_common_db_dbpath.h"
+#include "fty_common_db_asset.h"
 #endif // FTY_COMMON_DB_BUILD_DRAFT_API
 
 #ifdef FTY_COMMON_DB_BUILD_DRAFT_API

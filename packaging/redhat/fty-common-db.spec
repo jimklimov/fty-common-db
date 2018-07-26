@@ -1,5 +1,5 @@
 #
-#    fty-common - Provides common tools for agents
+#    fty-common-db - Provides common database tools for agents
 #
 #    Copyright (C) 2014 - 2018 Eaton
 #
@@ -47,9 +47,10 @@ BuildRequires:  libtool
 BuildRequires:  pkgconfig
 BuildRequires:  xmlto
 BuildRequires:  gcc-c++
+BuildRequires:  cxxtools-devel
 BuildRequires:  tntdb-devel
 BuildRequires:  log4cplus-devel
-BuildRequires:  cxxtools-devel
+BuildRequires:  fty-common-devel
 BuildRequires:  fty-common-logging-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
@@ -74,9 +75,10 @@ This package contains shared library for fty-common-db: provides common database
 Summary:        provides common database tools for agents
 Group:          System/Libraries
 Requires:       libfty_common_db1 = %{version}
+Requires:       cxxtools-devel
 Requires:       tntdb-devel
 Requires:       log4cplus-devel
-Requires:       cxxtools-devel
+Requires:       fty-common-devel
 Requires:       fty-common-logging-devel
 
 %description devel

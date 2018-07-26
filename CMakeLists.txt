@@ -89,6 +89,18 @@ list(APPEND CMAKE_MODULE_PATH "${SOURCE_DIR}")
 set(OPTIONAL_LIBRARIES)
 
 ########################################################################
+# CXXTOOLS dependency
+########################################################################
+find_package(cxxtools REQUIRED)
+IF (CXXTOOLS_FOUND)
+    include_directories(${CXXTOOLS_INCLUDE_DIRS})
+    list(APPEND MORE_LIBRARIES ${CXXTOOLS_LIBRARIES})
+    set(pkg_config_libs_private "${pkg_config_libs_private} -lcxxtools")
+ELSE (CXXTOOLS_FOUND)
+    message( FATAL_ERROR "cxxtools not found." )
+ENDIF (CXXTOOLS_FOUND)
+
+########################################################################
 # TNTDB dependency
 ########################################################################
 find_package(tntdb REQUIRED)
@@ -113,16 +125,16 @@ ELSE (LOG4CPLUS_FOUND)
 ENDIF (LOG4CPLUS_FOUND)
 
 ########################################################################
-# CXXTOOLS dependency
+# FTY-COMMON dependency
 ########################################################################
-find_package(cxxtools REQUIRED)
-IF (CXXTOOLS_FOUND)
-    include_directories(${CXXTOOLS_INCLUDE_DIRS})
-    list(APPEND MORE_LIBRARIES ${CXXTOOLS_LIBRARIES})
-    set(pkg_config_libs_private "${pkg_config_libs_private} -lcxxtools")
-ELSE (CXXTOOLS_FOUND)
-    message( FATAL_ERROR "cxxtools not found." )
-ENDIF (CXXTOOLS_FOUND)
+find_package(fty-common REQUIRED)
+IF (FTY-COMMON_FOUND)
+    include_directories(${FTY-COMMON_INCLUDE_DIRS})
+    list(APPEND MORE_LIBRARIES ${FTY-COMMON_LIBRARIES})
+    set(pkg_config_libs_private "${pkg_config_libs_private} -lfty-common")
+ELSE (FTY-COMMON_FOUND)
+    message( FATAL_ERROR "fty-common not found." )
+ENDIF (FTY-COMMON_FOUND)
 
 ########################################################################
 # FTY-COMMON-LOGGING dependency
@@ -156,7 +168,8 @@ set (fty_common_db_headers
 
 IF (ENABLE_DRAFTS)
     list(APPEND fty_common_db_headers
-        include/dbpath.h
+        include/fty_common_db_dbpath.h
+        include/fty_common_db_asset.h
     )
 ENDIF (ENABLE_DRAFTS)
 
@@ -174,7 +187,8 @@ set (fty_common_db_sources
 
 IF (ENABLE_DRAFTS)
     list (APPEND fty_common_db_sources
-        src/dbpath.cc
+        src/fty_common_db_dbpath.cc
+        src/fty_common_db_asset.cc
     )
 ENDIF (ENABLE_DRAFTS)
 
@@ -338,9 +352,10 @@ if (TARGET fty_common_db)
 target_link_libraries(
     fty_common_db_selftest
     fty_common_db
+    ${CXXTOOLS_LIBRARIES}
     ${TNTDB_LIBRARIES}
     ${LOG4CPLUS_LIBRARIES}
-    ${CXXTOOLS_LIBRARIES}
+    ${FTY-COMMON_LIBRARIES}
     ${FTY-COMMON-LOGGING_LIBRARIES}
     ${OPTIONAL_LIBRARIES}
 )
@@ -349,9 +364,10 @@ if (NOT TARGET fty_common_db AND TARGET fty_common_db-static)
 target_link_libraries(
     fty_common_db_selftest
     fty_common_db-static
+    ${CXXTOOLS_LIBRARIES}
     ${TNTDB_LIBRARIES}
     ${LOG4CPLUS_LIBRARIES}
-    ${CXXTOOLS_LIBRARIES}
+    ${FTY-COMMON_LIBRARIES}
     ${FTY-COMMON-LOGGING_LIBRARIES}
     ${OPTIONAL_LIBRARIES}
 )
@@ -375,7 +391,8 @@ set(TEST_CLASSES
 
 IF (ENABLE_DRAFTS)
     list (APPEND TEST_CLASSES
-    dbpath
+    fty_common_db_dbpath
+    fty_common_db_asset
     )
 ENDIF (ENABLE_DRAFTS)
 

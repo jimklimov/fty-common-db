@@ -1,5 +1,5 @@
 /*  =========================================================================
-    fty-common-db - Provides common database tools for agents
+    fty_common_db_asset - Asset related queries
 
     Copyright (C) 2014 - 2018 Eaton
 
@@ -19,12 +19,30 @@
     =========================================================================
 */
 
-#ifndef FTY_COMMON_DB_H_H_INCLUDED
-#define FTY_COMMON_DB_H_H_INCLUDED
+#ifndef FTY_COMMON_DB_ASSET_H_INCLUDED
+#define FTY_COMMON_DB_ASSET_H_INCLUDED
 
-//  Include the project library file
-#include "fty_common_db_library.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-//  Add your own public definitions here, if you need them
+//  @interface
+//  Create a new fty_common_db_asset
+FTY_COMMON_DB_EXPORT fty_common_db_asset_t *
+    fty_common_db_asset_new (void);
+
+//  Destroy the fty_common_db_asset
+FTY_COMMON_DB_EXPORT void
+    fty_common_db_asset_destroy (fty_common_db_asset_t **self_p);
+
+//  Self test of this class
+FTY_COMMON_DB_EXPORT void
+    fty_common_db_asset_test (bool verbose);
+
+//  @end
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

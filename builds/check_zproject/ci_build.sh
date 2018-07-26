@@ -7,9 +7,10 @@ set -ex
 
 # Verify all required dependencies with repos can be checked out
 cd "$REPO_DIR/.."
+git clone --quiet --depth 1 -b 2.2-FTY-master https://github.com/42ity/cxxtools.git cxxtools
 git clone --quiet --depth 1 -b 1.3-FTY-master https://github.com/42ity/tntdb.git tntdb
 git clone --quiet --depth 1 -b 1.1.2-FTY-master https://github.com/42ity/log4cplus.git log4cplus
-git clone --quiet --depth 1 -b 2.2-FTY-master https://github.com/42ity/cxxtools.git cxxtools
+git clone --quiet --depth 1 -b master https://github.com/42ity/fty-common.git fty-common
 git clone --quiet --depth 1 -b master https://github.com/42ity/fty-common-logging.git fty-common-logging
 cd -
 

@@ -15,7 +15,7 @@ Project fty-common-db aims to ... (short marketing pitch)
 It delivers several programs with their respective man pages:
 
 and public classes in a shared library:
- dbpath.3
+ fty_common_db_dbpath.3 fty_common_db_asset.3
 
 Generally you can compile and link against it like this:
 ----

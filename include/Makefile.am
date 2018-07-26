@@ -8,7 +8,8 @@ nobase_include_HEADERS = \
 
 if ENABLE_DRAFTS
 nobase_include_HEADERS += \
-    dbpath.h
+    fty_common_db_dbpath.h \
+    fty_common_db_asset.h
 
 endif
 

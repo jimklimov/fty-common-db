@@ -24,9 +24,10 @@ Maintainer:     fty-common-db Developers <eatonipcopensource@eaton.com>
 Standards-Version: 4.0.1.0
 Build-Depends: debhelper (>= 9),
     pkg-config,
+    libcxxtools-dev,
     libtntdb-dev,
     liblog4cplus-dev,
-    libcxxtools-dev,
+    libfty-common-dev,
     libfty-common-logging-dev,
     asciidoc-base | asciidoc, xmlto,
     dh-autoreconf
@@ -43,9 +44,10 @@ Architecture: any
 Section: libdevel
 Depends:
     ${misc:Depends},
+    libcxxtools-dev,
     libtntdb-dev,
     liblog4cplus-dev,
-    libcxxtools-dev,
+    libfty-common-dev,
     libfty-common-logging-dev,
     libfty-common-db1 (= ${binary:Version})
 Description: fty-common-db development tools

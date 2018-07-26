@@ -74,7 +74,6 @@ Testing/
 # Repositories downloaded by CI integration scripts
 tntdb/
 log4cplus/
-cxxtools/
 fty-common-logging/
 
 # Travis build area

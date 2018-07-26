@@ -17,7 +17,8 @@ src_libfty_common_db_la_SOURCES = \
 
 if ENABLE_DRAFTS
 src_libfty_common_db_la_SOURCES += \
-    src/dbpath.cc
+    src/fty_common_db_dbpath.cc \
+    src/fty_common_db_asset.cc
 
 endif
 
