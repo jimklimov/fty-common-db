@@ -31,12 +31,15 @@
 
 #include <string>
 
+namespace DBConn {
+
 #define PASSWD_FILE  "/etc/default/bios-db-rw"
 //! Global string with url to the database
 extern std::string url;
 void dbpath ();
 bool dbreadcredentials();
 
-#endif
+} // namespace
+#endif // __cplusplus
 
 #endif //FTY_COMMON_DB_DBPATH_H
