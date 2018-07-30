@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <fty_common_filesystem.h>
 
+namespace DBConn {
 static std::string
 s_get_dbpath_wo_trace() {
     std::string s_url =
@@ -92,3 +93,4 @@ bool dbreadcredentials(){
     dbpath();
     return true;
 }
+}// namespace
