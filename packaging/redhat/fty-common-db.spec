@@ -1,5 +1,5 @@
 #
-#    fty-common - Provides common tools for agents
+#    fty-common-db - Provides common database tools for agents
 #
 #    Copyright (C) 2014 - 2018 Eaton
 #
@@ -28,10 +28,10 @@
 %else
 %define DRAFTS no
 %endif
-Name:           fty-common
+Name:           fty-common-db
 Version:        1.0.0
 Release:        1
-Summary:        provides common tools for agents
+Summary:        provides common database tools for agents
 License:        GPL-2.0+
 URL:            https://42ity.org
 Source0:        %{name}-%{version}.tar.gz
@@ -47,57 +47,49 @@ BuildRequires:  libtool
 BuildRequires:  pkgconfig
 BuildRequires:  xmlto
 BuildRequires:  gcc-c++
-BuildRequires:  libsodium-devel
-BuildRequires:  zeromq-devel
-BuildRequires:  czmq-devel
 BuildRequires:  cxxtools-devel
-BuildRequires:  tntnet-devel
 BuildRequires:  tntdb-devel
-BuildRequires:  cyrus-sasl-devel
 BuildRequires:  log4cplus-devel
-BuildRequires:  openssl-devel
+BuildRequires:  fty-common-devel
+BuildRequires:  fty-common-logging-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
-fty-common provides common tools for agents.
+fty-common-db provides common database tools for agents.
 
-%package -n libfty_common1
+%package -n libfty_common_db1
 Group:          System/Libraries
-Summary:        provides common tools for agents shared library
+Summary:        provides common database tools for agents shared library
 
-%description -n libfty_common1
-This package contains shared library for fty-common: provides common tools for agents
+%description -n libfty_common_db1
+This package contains shared library for fty-common-db: provides common database tools for agents
 
-%post -n libfty_common1 -p /sbin/ldconfig
-%postun -n libfty_common1 -p /sbin/ldconfig
+%post -n libfty_common_db1 -p /sbin/ldconfig
+%postun -n libfty_common_db1 -p /sbin/ldconfig
 
-%files -n libfty_common1
+%files -n libfty_common_db1
 %defattr(-,root,root)
-%{_libdir}/libfty_common.so.*
+%{_libdir}/libfty_common_db.so.*
 
 %package devel
-Summary:        provides common tools for agents
+Summary:        provides common database tools for agents
 Group:          System/Libraries
-Requires:       libfty_common1 = %{version}
-Requires:       libsodium-devel
-Requires:       zeromq-devel
-Requires:       czmq-devel
+Requires:       libfty_common_db1 = %{version}
 Requires:       cxxtools-devel
-Requires:       tntnet-devel
 Requires:       tntdb-devel
-Requires:       cyrus-sasl-devel
 Requires:       log4cplus-devel
-Requires:       openssl-devel
+Requires:       fty-common-devel
+Requires:       fty-common-logging-devel
 
 %description devel
-provides common tools for agents development tools
-This package contains development files for fty-common: provides common tools for agents
+provides common database tools for agents development tools
+This package contains development files for fty-common-db: provides common database tools for agents
 
 %files devel
 %defattr(-,root,root)
 %{_includedir}/*
-%{_libdir}/libfty_common.so
-%{_libdir}/pkgconfig/libfty_common.pc
+%{_libdir}/libfty_common_db.so
+%{_libdir}/pkgconfig/libfty_common_db.pc
 %{_mandir}/man3/*
 %{_mandir}/man7/*
 
