@@ -12,12 +12,12 @@ AM_CPPFLAGS = \
     ${cxxtools_CFLAGS} \
     ${tntdb_CFLAGS} \
     ${log4cplus_CFLAGS} \
-    ${fty_common_CFLAGS} \
     ${fty_common_logging_CFLAGS} \
+    ${fty_common_CFLAGS} \
     -D__STDC_FORMAT_MACROS \
     -I$(srcdir)/include
 
-project_libs = ${cxxtools_LIBS} ${tntdb_LIBS} ${log4cplus_LIBS} ${fty_common_LIBS} ${fty_common_logging_LIBS}
+project_libs = ${cxxtools_LIBS} ${tntdb_LIBS} ${log4cplus_LIBS} ${fty_common_logging_LIBS} ${fty_common_LIBS}
 
 SUBDIRS = doc
 SUBDIRS += include
@@ -41,8 +41,8 @@ EXTRA_DIST += \
     Findcxxtools.cmake \
     Findtntdb.cmake \
     Findlog4cplus.cmake \
-    Findfty_common.cmake \
     Findfty_common_logging.cmake \
+    Findfty_common.cmake \
     builds/cmake/Modules/ClangFormat.cmake \
     builds/cmake/clang-format-check.sh.in \
     builds/cmake/Config.cmake.in \
