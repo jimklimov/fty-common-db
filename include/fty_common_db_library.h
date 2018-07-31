@@ -31,8 +31,8 @@
 
 //  External dependencies
 #include <tntdb.h>
-#include <fty_common.h>
 #include <fty_log.h>
+#include <fty_common.h>
 
 //  FTY_COMMON_DB version macros for compile-time API detection
 #define FTY_COMMON_DB_VERSION_MAJOR 1
