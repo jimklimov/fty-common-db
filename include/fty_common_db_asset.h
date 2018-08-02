@@ -25,11 +25,6 @@
 #ifdef __cplusplus
 namespace DBAssets {
 
-// iname_to_dbid: converts asset internal name to database id
-// returns -1 if error ocurres
-    int64_t
-    iname_to_dbid (const std::string& url, const std::string& asset_name);
-
 // id_to_name_ext_name: converts database id to internal name and extended (unicode) name
 // returns empty pair of names if error
     std::pair <std::string, std::string>
@@ -44,6 +39,11 @@ namespace DBAssets {
 // returns value < 0 if error ocurres
     int
     name_to_extname (std::string asset_name, std::string &ext_name);
+
+// name_to_asset_id: converts asset internal name to database id
+// returns value < 0 if error ocurres
+    int64_t
+    name_to_asset_id (std::string asset_name);
 
 } // namespace
 
