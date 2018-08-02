@@ -161,6 +161,35 @@ name_to_extname (std::string asset_name, std::string &ext_name)
     }
 }
 
+int
+extname_to_asset_name (std::string asset_ext_name, std::string &asset_name)
+{
+    try
+    {
+        tntdb::Connection conn = tntdb::connectCached(DBConn::url);
+        tntdb::Statement st = conn.prepareCached(
+                " SELECT a.name FROM t_bios_asset_element AS a "
+                " INNER JOIN t_bios_asset_ext_attributes AS e "
+                " ON a.id_asset_element = e.id_asset_element "
+                " WHERE keytag = 'name' and value = :extname "
+                );
+
+        tntdb::Row row = st.set("extname", asset_ext_name).selectRow();
+        log_debug("[t_bios_asset_element]: were selected %" PRIu32 " rows", 1);
+
+        row [0].get(asset_name);
+        return 0;
+    }
+    catch (const tntdb::NotFound &e) {
+        log_error ("element %s not found", asset_ext_name.c_str ());
+        return -1;
+    }
+    catch (const std::exception &e)
+    {
+        log_error ("exception caught %s for element '%s'", e.what (), asset_ext_name.c_str ());
+        return -2;
+    }
+}
 
 } // namespace
 
