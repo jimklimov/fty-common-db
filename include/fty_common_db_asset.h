@@ -45,6 +45,12 @@ namespace DBAssets {
     int64_t
     name_to_asset_id (std::string asset_name);
 
+// extname_to_asset_name: converts asset name by the name in ext
+// returns value < 0 if error ocurres
+    int
+    extname_to_asset_name (std::string asset_ext_name, std::string &asset_name);
+
+
 } // namespace
 
 
