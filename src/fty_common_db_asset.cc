@@ -32,37 +32,6 @@
 
 namespace DBAssets {
 
-int64_t
-iname_to_dbid (const std::string& url, const std::string& asset_name)
-{
-    try
-    {
-        int64_t id = 0;
-
-        tntdb::Connection conn = tntdb::connectCached(DBConn::url);
-        tntdb::Statement st = conn.prepareCached(
-        " SELECT id_asset_element"
-        " FROM"
-        "   t_bios_asset_element"
-        " WHERE name = :asset_name"
-        );
-
-        tntdb::Row row = st.set("asset_name", asset_name).selectRow();
-        log_debug("[t_bios_asset_element]: were selected %" PRIu32 " rows", 1);
-
-        row [0].get(id);
-        return id;
-    }
-    catch (const std::exception &e)
-    {
-        if (!asset_name.empty())
-            log_error ("%s not found. exception caught %s", asset_name.c_str(), e.what ());
-        else
-            log_error ("asset_name empty. exception caught %s", e.what ());
-        return -1;
-    }
-}
-
 std::pair <std::string, std::string>
 id_to_name_ext_name (uint32_t asset_id)
 {
