@@ -23,26 +23,33 @@
 #define FTY_COMMON_DB_ASSET_H_INCLUDED
 
 #ifdef __cplusplus
-extern "C" {
-#endif
+namespace DBAssets {
 
-//  @interface
-//  Create a new fty_common_db_asset
-FTY_COMMON_DB_EXPORT fty_common_db_asset_t *
-    fty_common_db_asset_new (void);
+// iname_to_dbid: converts asset internal name to database id
+// returns -1 if error ocurres
+    int64_t
+    iname_to_dbid (const std::string& url, const std::string& asset_name);
 
-//  Destroy the fty_common_db_asset
-FTY_COMMON_DB_EXPORT void
-    fty_common_db_asset_destroy (fty_common_db_asset_t **self_p);
+// id_to_name_ext_name: converts database id to internal name and extended (unicode) name
+// returns empty pair of names if error
+    std::pair <std::string, std::string>
+    id_to_name_ext_name (uint32_t asset_id);
 
-//  Self test of this class
-FTY_COMMON_DB_EXPORT void
-    fty_common_db_asset_test (bool verbose);
+// extname_to_asset_id: converts extended name to database id
+// returns value < 0 if error ocurres
+    int64_t
+    extname_to_asset_id (std::string asset_ext_name);
 
-//  @end
+// name_to_extname: converts internal name to extended name
+// returns value < 0 if error ocurres
+    int
+    name_to_extname (std::string asset_name, std::string &ext_name);
 
-#ifdef __cplusplus
-}
-#endif
+} // namespace
 
-#endif
+
+void
+fty_common_db_asset_test (bool verbose);
+
+#endif //namespace
+#endif // FTY_COMMON_DB_ASSET_H_INCLUDED
