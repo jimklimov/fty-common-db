@@ -31,8 +31,8 @@
 
 //  External dependencies
 #include <tntdb.h>
-#include <fty_common.h>
 #include <fty_log.h>
+#include <fty_common.h>
 
 //  FTY_COMMON_DB version macros for compile-time API detection
 #define FTY_COMMON_DB_VERSION_MAJOR 1
@@ -84,6 +84,12 @@ typedef struct _fty_common_db_dbpath_t fty_common_db_dbpath_t;
 #define FTY_COMMON_DB_DBPATH_T_DEFINED
 typedef struct _fty_common_db_asset_t fty_common_db_asset_t;
 #define FTY_COMMON_DB_ASSET_T_DEFINED
+typedef struct _fty_common_db_asset_delete_t fty_common_db_asset_delete_t;
+#define FTY_COMMON_DB_ASSET_DELETE_T_DEFINED
+typedef struct _fty_common_db_asset_insert_t fty_common_db_asset_insert_t;
+#define FTY_COMMON_DB_ASSET_INSERT_T_DEFINED
+typedef struct _fty_common_db_asset_update_t fty_common_db_asset_update_t;
+#define FTY_COMMON_DB_ASSET_UPDATE_T_DEFINED
 #endif // FTY_COMMON_DB_BUILD_DRAFT_API
 
 
@@ -91,6 +97,9 @@ typedef struct _fty_common_db_asset_t fty_common_db_asset_t;
 #ifdef FTY_COMMON_DB_BUILD_DRAFT_API
 #include "fty_common_db_dbpath.h"
 #include "fty_common_db_asset.h"
+#include "fty_common_db_asset_delete.h"
+#include "fty_common_db_asset_insert.h"
+#include "fty_common_db_asset_update.h"
 #endif // FTY_COMMON_DB_BUILD_DRAFT_API
 
 #ifdef FTY_COMMON_DB_BUILD_DRAFT_API

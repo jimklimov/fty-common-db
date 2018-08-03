@@ -50,8 +50,8 @@ BuildRequires:  gcc-c++
 BuildRequires:  cxxtools-devel
 BuildRequires:  tntdb-devel
 BuildRequires:  log4cplus-devel
-BuildRequires:  fty-common-devel
 BuildRequires:  fty-common-logging-devel
+BuildRequires:  fty-common-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
@@ -78,8 +78,8 @@ Requires:       libfty_common_db1 = %{version}
 Requires:       cxxtools-devel
 Requires:       tntdb-devel
 Requires:       log4cplus-devel
-Requires:       fty-common-devel
 Requires:       fty-common-logging-devel
+Requires:       fty-common-devel
 
 %description devel
 provides common database tools for agents development tools
