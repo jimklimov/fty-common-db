@@ -21,9 +21,12 @@
 
 #ifndef FTY_COMMON_DB_ASSET_H_INCLUDED
 #define FTY_COMMON_DB_ASSET_H_INCLUDED
+#include <inttypes.h>
 
 #ifdef __cplusplus
+
 namespace DBAssets {
+typedef std::function<void(const tntdb::Row&)> row_cb_f ;
 
 // id_to_name_ext_name: converts database id to internal name and extended (unicode) name
 // returns empty pair of names if error
@@ -50,6 +53,126 @@ namespace DBAssets {
     int
     extname_to_asset_name (std::string asset_ext_name, std::string &asset_name);
 
+// --------------------------------------------------------------------
+
+// select_asset_element_super_parent: selects parents of given device
+// returns 0 if succesful
+// returns -1 if error occurs
+    int
+    select_asset_element_super_parent (tntdb::Connection& conn,
+                                       uint32_t id,
+                                       std::function<void(const tntdb::Row&)>& cb);
+
+// select_asset_element_all_with_warranty_end: selects assets which
+// are close to warranty expiration
+// returns 0 if succesful
+// returns -1 if error occurs
+
+    int
+    select_asset_element_all_with_warranty_end (tntdb::Connection& conn,
+                                                std::function<void(const tntdb::Row&)>& cb);
+
+// select_assets_by_container: selects assets from given container (DB, room, rack, ...)
+// without - accepted values: "location", "powerchain" or empty string
+// returns 0 if succesful
+// returns -1 if error occurs
+
+    int
+    select_assets_by_container (tntdb::Connection &conn,
+                                uint32_t element_id,
+                                std::vector<uint16_t> types,
+                                std::vector<uint16_t> subtypes,
+                                std::string without,
+                                std::string status,
+                                std::function<void(const tntdb::Row&)> cb);
+
+    int
+    select_assets_by_container (tntdb::Connection &conn,
+                                uint32_t element_id,
+                                std::function<void(const tntdb::Row&)> cb,
+                                std::string status);
+
+    int
+    select_assets_by_container (tntdb::Connection &conn,
+                                uint32_t element_id,
+                                std::function<void(const tntdb::Row&)> cb);
+
+// select_assets_without_container: select all assets in all (or without) containers
+// return 0 on success (even if nothing was found)
+// returns -1 if error occurs
+    int
+    select_assets_without_container (tntdb::Connection &conn,
+                                     std::vector<uint16_t> types,
+                                     std::vector<uint16_t> subtypes,
+                                     std::function<void(const tntdb::Row&)> cb);
+
+// select_assets_all_container: selects all assets (with and wihout container)
+// return 0 on success (even if nothing was found)
+// returns -1 if error occurs
+    int
+    select_assets_all_container (tntdb::Connection &conn,
+                                 std::vector<uint16_t> types,
+                                 std::vector<uint16_t> subtypes,
+                                 std::string without,
+                                 std::string status,
+                                 std::function<void(const tntdb::Row&)> cb);
+
+// convert_asset_to_monitor: converts asset id to monitor id
+// return  0 on success (even if counterpart was not found)
+// returns -1 if error occurs
+    int
+    convert_asset_to_monitor (tntdb::Connection &conn,
+                              uint32_t asset_element_id,
+                              uint16_t &monitor_element_id);
+
+// count_keytag: how many times is gived a couple keytag/value
+// in t_bios_asset_ext_attributes
+// returns -1 in case of error otherwise number of instance
+    int
+    count_keytag (tntdb::Connection& conn,
+                  const std::string &keytag,
+                  const std::string &value);
+
+// unique_keytag: check if the pair (key, value) is unique
+// return -1 in case of error
+//         0 if there is no such pair in db yet
+//         otherwise number of such pairs
+    int
+    unique_keytag (tntdb::Connection &conn,
+                   const std::string &keytag,
+                   const std::string &value,
+                   uint32_t       element_id);
+
+// max_number_of_power_links: select maximum number of power sources for device in the system
+// return -1 in case of error otherwise number of power sources
+    int
+    max_number_of_power_links (tntdb::Connection& conn);
+
+// count_of_link_src: how many times asset id occurs as id_asset_device_src
+// return -1 in case of error otherwise number of used outlets
+    int
+    count_of_link_src (tntdb::Connection& conn,
+                       uint32_t id);
+
+// max_number_of_asset_groups: select maximal number of groups in the system
+// return -1 in case of error otherwise number of groups
+    int
+    max_number_of_asset_groups (tntdb::Connection& conn);
+
+
+// brief selects all group names for given element id
+// returns -1 in case of error or 0 for success
+    int
+    select_group_names (tntdb::Connection& conn,
+                        uint32_t id,
+                        std::vector<std::string>& out);
+
+//selects information about power links for given device id
+// returns -1 in case of error or 0 for success
+    int
+    select_v_web_asset_power_link_src_byId (tntdb::Connection& conn,
+                                            uint32_t id,
+                                            row_cb_f& cb);
 
 } // namespace
 

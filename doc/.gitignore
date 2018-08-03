@@ -15,6 +15,12 @@ fty_common_db_dbpath.txt
 fty_common_db_dbpath.doc
 fty_common_db_asset.txt
 fty_common_db_asset.doc
+fty_common_db_asset_delete.txt
+fty_common_db_asset_delete.doc
+fty_common_db_asset_insert.txt
+fty_common_db_asset_insert.doc
+fty_common_db_asset_update.txt
+fty_common_db_asset_update.doc
 
 # Make sure to track the manually maintained project description
 !*.adoc

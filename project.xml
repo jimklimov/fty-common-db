@@ -37,7 +37,6 @@
             repository = "https://github.com/42ity/cxxtools.git"
             release = "2.2-FTY-master"
             />
-
     </use>
 
     <use project = "fty-common-logging" libname = "libfty_common_logging" header="fty_log.h"
@@ -48,7 +47,6 @@
             repository = "https://github.com/42ity/log4cplus.git"
             release = "1.1.2-FTY-master"
             />
-
     </use>
 
     <use project = "fty-common" libname = "libfty_common" header="fty_common.h"
@@ -58,12 +56,13 @@
         <use project = "fty-common-logging" libname = "libfty_common_logging" header="fty_log.h"
             repository = "https://github.com/42ity/fty-common-logging.git"
             release = "master" >
-
         </use>
-
     </use>
 
     <class name = "fty_common_db_dbpath" selftest = "0" stable = "1" > Fty database path </class>
-    <class name = "fty_common_db_asset" selftest = "1" stable = "1" > Asset related queries </class>
+    <class name = "fty_common_db_asset" selftest = "1" stable = "1" > Asset filtering function </class>
+    <class name = "fty_common_db_asset_delete" selftest = "0" stable = "1" > Functions deleting assets from database. </class>
+    <class name = "fty_common_db_asset_insert" selftest = "0" stable = "1" > Functions inserting assets to database. </class>
+    <class name = "fty_common_db_asset_update" selftest = "0" stable = "1" > Functions updating assets in database. </class>
 
 </project>
