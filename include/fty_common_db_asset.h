@@ -25,6 +25,7 @@
 // Note: Consumers MUST be built with C++11 or newer standard due to this:
 #include <functional>
 #include <inttypes.h>
+#include <tntdb.h>
 
 #ifdef __cplusplus
 
