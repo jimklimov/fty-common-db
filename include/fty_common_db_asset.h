@@ -21,6 +21,9 @@
 
 #ifndef FTY_COMMON_DB_ASSET_H_INCLUDED
 #define FTY_COMMON_DB_ASSET_H_INCLUDED
+
+// Note: Consumers MUST be built with C++11 or newer standard due to this:
+#include <functional>
 #include <inttypes.h>
 
 #ifdef __cplusplus
