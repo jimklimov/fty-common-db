@@ -52,6 +52,9 @@ BuildRequires:  tntdb-devel
 BuildRequires:  log4cplus-devel
 BuildRequires:  fty-common-logging-devel
 BuildRequires:  fty-common-devel
+BuildRequires:  libsodium-devel
+BuildRequires:  zeromq-devel
+BuildRequires:  czmq-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
@@ -80,6 +83,9 @@ Requires:       tntdb-devel
 Requires:       log4cplus-devel
 Requires:       fty-common-logging-devel
 Requires:       fty-common-devel
+Requires:       libsodium-devel
+Requires:       zeromq-devel
+Requires:       czmq-devel
 
 %description devel
 provides common database tools for agents development tools

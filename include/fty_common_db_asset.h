@@ -22,11 +22,90 @@
 #ifndef FTY_COMMON_DB_ASSET_H_INCLUDED
 #define FTY_COMMON_DB_ASSET_H_INCLUDED
 #include <inttypes.h>
+#include <tntdb.h>
+
+typedef std::function<void(const tntdb::Row&)> row_cb_f ;
+
+template <typename T>
+struct db_reply{
+    int status; // ok/fail
+    int errtype;
+    int errsubtype;
+    uint64_t rowid;  // insert/update or http error code if status == 0
+    uint64_t affected_rows; // for update/insert/delete
+    std::string msg;
+    zhash_t *addinfo;
+    T item;
+};
+
+typedef db_reply<uint64_t> db_reply_t;
+
+inline db_reply_t db_reply_new() {
+    db_reply_t val;
+    val.status = 1;
+    val.errtype = 0;
+    val.errsubtype = 0;
+    val.rowid = 0;
+    val.affected_rows = 0;
+    val.msg = "";
+    val.addinfo = NULL;
+    val.item = 0;
+
+    return val;
+}
+
+template <typename T>
+inline db_reply<T> db_reply_new(T& item) {
+    db_reply<T> val;
+    val.status = 1;
+    val.errtype = 0;
+    val.errsubtype = 0;
+    val.rowid = 0;
+    val.affected_rows = 0;
+    val.msg = "";
+    val.addinfo = NULL;
+    val.item = item;
+    return val;
+}
+
+struct db_web_basic_element_t {
+    uint32_t    id;
+    std::string name;
+    std::string status;
+    uint16_t    priority;
+    uint16_t    type_id;
+    std::string type_name;
+    uint32_t    parent_id;
+    uint16_t    parent_type_id;
+    uint16_t    subtype_id;
+    // TODO location
+    std::string subtype_name;
+    std::string asset_tag;
+    std::string parent_name;
+};
+
+struct db_tmp_link_t {
+    uint32_t     src_id;
+    uint32_t     dest_id;
+    std::string      src_name;
+    std::string      src_socket;
+    std::string      dest_socket;
+};
+
+struct db_web_element_t{
+    db_web_basic_element_t basic;
+    std::map <uint32_t, std::string> groups;
+    std::vector <db_tmp_link_t> powers;
+    std::map <std::string, std::pair<std::string, bool> > ext;
+    std::vector <std::tuple <uint32_t, std::string, std::string, std::string>> parents;        // list of parents (id, name)
+};
+
 
 #ifdef __cplusplus
 
+
+// --------------------------------------------------------------------
 namespace DBAssets {
-typedef std::function<void(const tntdb::Row&)> row_cb_f ;
 
 // id_to_name_ext_name: converts database id to internal name and extended (unicode) name
 // returns empty pair of names if error
@@ -117,6 +196,12 @@ typedef std::function<void(const tntdb::Row&)> row_cb_f ;
                                  std::string status,
                                  std::function<void(const tntdb::Row&)> cb);
 
+// select_asset_element_all: select everything from v_web_element
+// returns -1 in case of error or 0 for success
+    int
+    select_asset_element_all (tntdb::Connection& conn,
+                              std::function<void(const tntdb::Row&)>& cb);
+
 // convert_asset_to_monitor: converts asset id to monitor id
 // return  0 on success (even if counterpart was not found)
 // returns -1 if error occurs
@@ -160,20 +245,89 @@ typedef std::function<void(const tntdb::Row&)> row_cb_f ;
     max_number_of_asset_groups (tntdb::Connection& conn);
 
 
-// brief selects all group names for given element id
+// select_group_names: selects all group names for given element id
 // returns -1 in case of error or 0 for success
     int
     select_group_names (tntdb::Connection& conn,
                         uint32_t id,
                         std::vector<std::string>& out);
 
-//selects information about power links for given device id
+//select_v_web_asset_power_link_src_byId: selects information about power links for given device id
 // returns -1 in case of error or 0 for success
     int
     select_v_web_asset_power_link_src_byId (tntdb::Connection& conn,
                                             uint32_t id,
                                             row_cb_f& cb);
 
+// select_asset_ext_attribute_by_keytag: select all information about ext attribute based on keytag and asset_id[s]
+// returns -1 in case of error, 0 on success (even if nothing was found)
+    int
+    select_asset_ext_attribute_by_keytag (tntdb::Connection &conn,
+                                          const std::string &keytag,
+                                          const std::set<uint32_t> &element_ids,
+                                          std::function<void( const tntdb::Row& )> &cb);
+
+// select_ext_rw_attributes_keytags: select all read-write ext attributes
+// returns -1 in case of error or 0 for success
+    int
+    select_ext_rw_attributes_keytags (tntdb::Connection& conn,
+                                      std::function<void(const tntdb::Row&)>& cb);
+
+// select_ext_attributes: select all ext_attributes of asset
+// returns -1 in case of error or 0 for success
+    db_reply <std::map <std::string, std::pair<std::string, bool>>>
+    select_ext_attributes (tntdb::Connection &conn,
+                           uint32_t element_id);
+    int
+    select_ext_attributes (tntdb::Connection &conn,
+                           uint32_t element_id,
+                           std::map <std::string, std::pair<std::string, bool> >& out);
+
+// --------------------------------------------------------------------
+
+// select_monitor_device_type_id: select id based on name from v_bios_device_type
+// db_reply_t.status == 0 means error or not found, 1 means success
+
+    db_reply_t
+    select_monitor_device_type_id (tntdb::Connection &conn,
+                                   const char *device_type_name);
+
+// select_asset_element_web_byId: select all data about asset in v_web_element
+// db_reply.status == 0 means error or not found, 1 means success
+
+    db_reply <db_web_basic_element_t>
+    select_asset_element_web_byId (tntdb::Connection &conn,
+                                   uint32_t element_id);
+
+// select_asset_element_web_byName:  select all data about asset in v_web_element based on asset name
+// db_reply.status == 0 means error or not found, 1 means success
+
+    db_reply <db_web_basic_element_t>
+    select_asset_element_web_byName (tntdb::Connection &conn,
+                                     const char *element_name);
+
+// select_asset_device_links_to: get data about the links the specified device belongs to
+// db_reply.status == 0 means error or not found, 1 means success
+
+    db_reply <std::vector <db_tmp_link_t>>
+    select_asset_device_links_to (tntdb::Connection &conn,
+                                  uint32_t element_id,
+                                  uint8_t link_type_id);
+
+// select_asset_element_groups: get information about the groups element belongs to
+// db_reply.status == 0 means error or not found, 1 means success
+
+    db_reply <std::map <uint32_t, std::string> >
+    select_asset_element_groups (tntdb::Connection &conn,
+                                 uint32_t element_id);
+
+// select_short_elements: select all devices of certain type/subtype
+// db_reply.status == 0 means error or not found, 1 means success
+
+    db_reply <std::map <uint32_t, std::string> >
+    select_short_elements (tntdb::Connection &conn,
+                           uint16_t type_id,
+                           uint16_t subtype_id);
 } // namespace
 
 
