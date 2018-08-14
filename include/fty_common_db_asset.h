@@ -21,8 +21,12 @@
 
 #ifndef FTY_COMMON_DB_ASSET_H_INCLUDED
 #define FTY_COMMON_DB_ASSET_H_INCLUDED
+
+// Note: Consumers MUST be built with C++11 or newer standard due to this:
+#include <functional>
 #include <inttypes.h>
 #include <tntdb.h>
+#include <czmq.h>
 
 typedef std::function<void(const tntdb::Row&)> row_cb_f ;
 
@@ -99,7 +103,6 @@ struct db_web_element_t{
     std::map <std::string, std::pair<std::string, bool> > ext;
     std::vector <std::tuple <uint32_t, std::string, std::string, std::string>> parents;        // list of parents (id, name)
 };
-
 
 #ifdef __cplusplus
 
