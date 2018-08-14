@@ -33,6 +33,7 @@
 #include <tntdb.h>
 #include <fty_log.h>
 #include <fty_common.h>
+#include <czmq.h>
 
 //  FTY_COMMON_DB version macros for compile-time API detection
 #define FTY_COMMON_DB_VERSION_MAJOR 1
@@ -43,6 +44,7 @@
     ((major) * 10000 + (minor) * 100 + (patch))
 #define FTY_COMMON_DB_VERSION \
     FTY_COMMON_DB_MAKE_VERSION(FTY_COMMON_DB_VERSION_MAJOR, FTY_COMMON_DB_VERSION_MINOR, FTY_COMMON_DB_VERSION_PATCH)
+
 
 #if defined (__WINDOWS__)
 #   if defined FTY_COMMON_DB_STATIC
@@ -79,6 +81,20 @@
 //  Opaque class structures to allow forward references
 //  These classes are stable or legacy and built in all releases
 //  Draft classes are by default not built in stable releases
+#ifdef FTY_COMMON_DB_BUILD_DRAFT_API
+typedef struct _fty_common_db_dbpath_t fty_common_db_dbpath_t;
+#define FTY_COMMON_DB_DBPATH_T_DEFINED
+typedef struct _fty_common_db_asset_t fty_common_db_asset_t;
+#define FTY_COMMON_DB_ASSET_T_DEFINED
+typedef struct _fty_common_db_asset_delete_t fty_common_db_asset_delete_t;
+#define FTY_COMMON_DB_ASSET_DELETE_T_DEFINED
+typedef struct _fty_common_db_asset_insert_t fty_common_db_asset_insert_t;
+#define FTY_COMMON_DB_ASSET_INSERT_T_DEFINED
+typedef struct _fty_common_db_asset_update_t fty_common_db_asset_update_t;
+#define FTY_COMMON_DB_ASSET_UPDATE_T_DEFINED
+#endif // FTY_COMMON_DB_BUILD_DRAFT_API
+
+
 //  Public classes, each with its own header file
 #ifdef FTY_COMMON_DB_BUILD_DRAFT_API
 #include "fty_common_db_dbpath.h"
