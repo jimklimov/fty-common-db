@@ -34,6 +34,7 @@ enum errtypes {
     DB_ERR,
     BAD_INPUT,
     INTERNAL_ERR,
+    LICENSING_ERR,
 };
 
 //! Constants for database errors
