@@ -28,7 +28,6 @@
 
 #include "fty_common_db_classes.h"
 #include <assert.h>
-//#include <inttypes.h>
 
 namespace DBAssets {
 
@@ -1351,6 +1350,173 @@ select_short_elements (tntdb::Connection &conn,
         LOG_END_ABNORMAL(e);
         return ret;
     }
+}
+
+db_reply <std::vector<db_a_elmnt_t>>
+select_asset_elements_by_type (tntdb::Connection &conn,
+                               uint16_t type_id,
+                               std::string status)
+{
+
+    std::vector<db_a_elmnt_t> item{};
+    db_reply <std::vector<db_a_elmnt_t>> ret = db_reply_new(item);
+
+    try{
+        // Can return more than one row.
+        tntdb::Statement st = conn.prepareCached(
+            " SELECT"
+            "   v.name , v.id_parent, v.status, v.priority, v.id, v.id_subtype"
+            " FROM"
+            "   v_bios_asset_element v"
+            " WHERE v.id_type = :typeid AND"
+            "   v.status = :vstatus "
+        );
+
+        tntdb::Result result = st.set("typeid", type_id).
+                                  set("vstatus", status).
+                                  select();
+        log_trace("[v_bios_asset_element]: were selected %" PRIu32 " rows",
+                                                            result.size());
+
+        // Go through the selected elements
+        for ( auto &row: result )
+        {
+            db_a_elmnt_t m{0,"","",0,5,0,0,""};
+
+            row[0].get(m.name);
+            assert ( !m.name.empty() );  // database is corrupted
+
+            row[1].get(m.parent_id);
+            row[2].get(m.status);
+            row[3].get(m.priority);
+            row[4].get(m.id);
+            row[5].get(m.subtype_id);
+
+            ret.item.push_back(m);
+        }
+        ret.status = 1;
+        return ret;
+    }
+    catch (const std::exception &e) {
+        ret.status        = 0;
+        ret.errtype       = DB_ERR;
+        ret.errsubtype    = DB_ERROR_INTERNAL;
+        ret.msg           = e.what();
+        ret.item.clear();
+        log_error(e.what());
+        return ret;
+    }
+}
+
+db_reply <std::set <std::pair<uint32_t, uint32_t>>>
+select_links_by_container (tntdb::Connection &conn,
+                           uint32_t element_id,
+                           std::string status)
+{
+    log_trace ("  links are selected for element_id = %" PRIi32, element_id);
+    uint8_t linktype = INPUT_POWER_CHAIN;
+
+    //      all powerlinks are included into "resultpowers"
+    std::set <std::pair<uint32_t ,uint32_t>> item{};
+    db_reply <std::set<std::pair<uint32_t ,uint32_t>>> ret = db_reply_new(item);
+
+    try{
+        // v_bios_asset_link are only devices,
+        // so there is no need to add more constrains
+        tntdb::Statement st = conn.prepareCached(
+            " SELECT"
+            "   v.id_asset_element_src,"
+            "   v.id_asset_element_dest"
+            " FROM"
+            "   v_bios_asset_link AS v,"
+            "   v_bios_asset_element_super_parent AS v1,"
+            "   v_bios_asset_element_super_parent AS v2"
+            " WHERE"
+            "   v.id_asset_link_type = :linktypeid AND"
+            "   v.id_asset_element_dest = v2.id_asset_element AND"
+            "   v.id_asset_element_src = v1.id_asset_element AND"
+            "   ("
+            "       ( :containerid IN (v2.id_parent1, v2.id_parent2 ,v2.id_parent3,"
+            "                          v2.id_parent4, v2.id_parent5, v2.id_parent6,"
+            "                          v2.id_parent7, v2.id_parent8, v2.id_parent9,"
+            "                          v2.id_parent10) AND v1.status = :vstatus AND v2.status = :vstatus) OR"
+            "       ( :containerid IN (v1.id_parent1, v1.id_parent2 ,v1.id_parent3,"
+            "                          v1.id_parent4, v1.id_parent5, v1.id_parent6,"
+            "                          v1.id_parent7, v1.id_parent8, v1.id_parent9,"
+            "                          v1.id_parent10) AND v1.status = :vstatus AND v2.status = :vstatus)"
+            "   )"
+        );
+
+        // can return more than one row
+        tntdb::Result result = st.set("containerid", element_id).
+                                  set("linktypeid", linktype).
+                                  set("vstatus", status).
+                                  select();
+        log_trace("[t_bios_asset_link]: were selected %" PRIu32 " rows",
+                                                         result.size());
+        // debug helper
+        std::vector <std::string> inactive = list_devices_with_status (conn,"nonactive");
+        log_trace ("Inactive devices omitted:");
+        for (auto dev : inactive) {
+            log_trace ("\t- %s", dev.c_str ());
+        }
+
+        // Go through the selected links
+        for ( auto &row: result )
+        {
+            // id_asset_element_src, required
+            uint32_t id_asset_element_src = 0;
+            row[0].get(id_asset_element_src);
+            assert ( id_asset_element_src );
+
+            // id_asset_element_dest, required
+            uint32_t id_asset_element_dest = 0;
+            row[1].get(id_asset_element_dest);
+            assert ( id_asset_element_dest );
+
+            ret.item.insert(std::pair<uint32_t, uint32_t>(id_asset_element_src, id_asset_element_dest));
+        } // end for
+        ret.status = 1;
+        return ret;
+    }
+    catch (const std::exception &e) {
+        ret.status     = 0;
+        ret.errtype    = DB_ERR;
+        ret.errsubtype = DB_ERROR_INTERNAL;
+        ret.msg        = e.what();
+        log_error (e.what());
+        return ret;
+    }
+}
+
+// returns vector with either active or inactive devices
+std::vector <std::string>
+list_devices_with_status (tntdb::Connection &conn, std::string status)
+{
+    std::vector <std::string> inactive_list;
+    try {
+        tntdb::Statement st = conn.prepareCached(
+            " SELECT"
+            "   v.name, v.id_subtype"
+            " FROM"
+            "   v_bios_asset_element v"
+            " WHERE v.status = :vstatus "
+        );
+
+        tntdb::Result result = st.set("vstatus", status).select();
+        log_trace("[v_bios_asset_element]: were selected %" PRIu32 " rows",
+                                                            result.size());
+        for (auto &row : result) {
+            std::string device;
+            row [0].get (device);
+            inactive_list.push_back (device);
+        }
+
+    }
+    catch (const std::exception &e) {
+        throw std::runtime_error("Reading from DB failed.");
+    }
+    return inactive_list;
 }
 
 } // namespace

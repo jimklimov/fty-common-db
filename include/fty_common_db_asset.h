@@ -28,6 +28,9 @@
 #include <tntdb.h>
 #include <czmq.h>
 
+#ifdef __cplusplus
+#define INPUT_POWER_CHAIN     1
+
 typedef std::function<void(const tntdb::Row&)> row_cb_f ;
 
 template <typename T>
@@ -89,8 +92,8 @@ struct db_web_basic_element_t {
 };
 
 struct db_tmp_link_t {
-    uint32_t     src_id;
-    uint32_t     dest_id;
+    uint32_t         src_id;
+    uint32_t         dest_id;
     std::string      src_name;
     std::string      src_socket;
     std::string      dest_socket;
@@ -104,8 +107,50 @@ struct db_web_element_t{
     std::vector <std::tuple <uint32_t, std::string, std::string, std::string>> parents;        // list of parents (id, name)
 };
 
-#ifdef __cplusplus
+struct db_a_elmnt_t {
+    uint32_t         id;
+    std::string      name;
+    std::string      status;
+    uint32_t         parent_id;
+    uint16_t         priority;
+    uint16_t         type_id;
+    uint16_t         subtype_id;
+    std::string      asset_tag;
+    std::map <std::string, std::string> ext;
 
+    db_a_elmnt_t () :
+        id{},
+        name{},
+        status{},
+        parent_id{},
+        priority{},
+        type_id{},
+        subtype_id{},
+        asset_tag{},
+        ext{}
+    {}
+
+    db_a_elmnt_t (
+        uint32_t         id,
+        std::string      name,
+        std::string      status,
+        uint32_t         parent_id,
+        uint8_t          priority,
+        uint16_t         type_id,
+        uint16_t         subtype_id,
+        std::string      asset_tag) :
+
+        id(id),
+        name(name),
+        status(status),
+        parent_id(parent_id),
+        priority(priority),
+        type_id(type_id),
+        subtype_id(subtype_id),
+        asset_tag(asset_tag),
+        ext{}
+    {}
+};
 
 // --------------------------------------------------------------------
 namespace DBAssets {
@@ -331,8 +376,24 @@ namespace DBAssets {
     select_short_elements (tntdb::Connection &conn,
                            uint16_t type_id,
                            uint16_t subtype_id);
-} // namespace
 
+// select_asset_elements_by_type: returns assets for given type
+    db_reply <std::vector<db_a_elmnt_t>>
+    select_asset_elements_by_type (tntdb::Connection &conn,
+                                   uint16_t type_id,
+                                   std::string status);
+
+// select_links_by_container: returns power links for given container
+    db_reply <std::set <std::pair<uint32_t, uint32_t>>>
+    select_links_by_container (tntdb::Connection &conn,
+                               uint32_t element_id,
+                               std::string status);
+
+// list_devices_with_status: returns active/inactive devices
+    std::vector <std::string>
+    list_devices_with_status (tntdb::Connection &conn, std::string status);
+
+} // namespace
 
 void
 fty_common_db_asset_test (bool verbose);
