@@ -45,12 +45,6 @@
 #define MAX_FULLHOSTNAME_LENGTH 45
 #define MAX_DESCRIPTION_LENGTH  255
 
-typedef struct _LIMITATIONS_STRUCT
-{
-    int max_active_power_devices;
-    int global_configurability;
-} LIMITATIONS_STRUCT;
-
 typedef std::function<void(const tntdb::Row&)> row_cb_f ;
 
 template <typename T>
