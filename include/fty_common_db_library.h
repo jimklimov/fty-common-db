@@ -45,7 +45,6 @@
 #define FTY_COMMON_DB_VERSION \
     FTY_COMMON_DB_MAKE_VERSION(FTY_COMMON_DB_VERSION_MAJOR, FTY_COMMON_DB_VERSION_MINOR, FTY_COMMON_DB_VERSION_PATCH)
 
-
 #if defined (__WINDOWS__)
 #   if defined FTY_COMMON_DB_STATIC
 #       define FTY_COMMON_DB_EXPORT
@@ -96,6 +95,7 @@ typedef struct _fty_common_db_asset_update_t fty_common_db_asset_update_t;
 
 
 //  Public classes, each with its own header file
+#include "fty_common_db_defs.h"
 #ifdef FTY_COMMON_DB_BUILD_DRAFT_API
 #include "fty_common_db_dbpath.h"
 #include "fty_common_db_asset.h"
