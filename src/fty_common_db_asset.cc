@@ -433,13 +433,150 @@ select_assets_by_container (tntdb::Connection &conn,
     }
 }
 
-
 int
 select_assets_by_container (tntdb::Connection &conn,
                             uint32_t element_id,
                             std::function<void(const tntdb::Row&)> cb)
 {
     return select_assets_by_container(conn, element_id, {}, {},"","", cb);
+}
+
+
+/**
+ * select_assets_by_container_filter: creates condition for type/subtype filtering
+ * returns query string for types/subtypes we are interested in
+ */
+static std::string
+select_assets_by_container_filter (
+    const std::set<std::string> &types_and_subtypes
+)
+{
+    std::string types, subtypes, filter;
+
+    for (const auto &i: types_and_subtypes) {
+        uint16_t t = persist::subtype_to_subtypeid (i);
+        if (t != persist::asset_subtype::SUNKNOWN) {
+            subtypes +=  "," + std::to_string (t);
+        } else {
+            t = persist::type_to_typeid (i);
+            if (t == persist::asset_type::TUNKNOWN) {
+                throw std::invalid_argument ("'" + i + "' is not known type or subtype ");
+            }
+            types += "," + std::to_string (t);
+        }
+    }
+    if (!types.empty ()) types = types.substr(1);
+    if (!subtypes.empty ()) subtypes = subtypes.substr(1);
+    if (!types.empty () || !subtypes.empty () ) {
+        if (!types.empty ()) {
+            filter += " id_type in (" + types + ") ";
+            if (!subtypes.empty () ) filter += " OR ";
+        }
+        if (!subtypes.empty ()) {
+            filter += " id_asset_device_type in (" + subtypes + ") ";
+        }
+    }
+    log_debug ("filter: '%s'", filter.c_str ());
+    return filter;
+}
+
+int
+select_assets_by_container_name_filter (tntdb::Connection &conn,
+                                        const std::string& container_name,
+                                        const std::set <std::string>& filter,
+                                        std::vector <std::string>& assets)
+{
+    uint32_t id = 0;
+
+    try {
+        // get container asset id
+        tntdb::Statement select_id = conn.prepareCached(
+            " SELECT "
+            "   v.id "
+            " FROM "
+            "   v_bios_asset_element v "
+            " WHERE "
+            "   v.name = :name "
+        );
+
+        tntdb::Row row = select_id.set("name", container_name).
+                            selectRow();
+        row["id"].get(id);
+
+        std::string request =
+            " SELECT "
+            "   v.name, "
+            "   v.id_asset_element as asset_id, "
+            "   v.id_asset_device_type as subtype_id, "
+            "   v.type_name as subtype_name, "
+            "   v.id_type as type_id "
+            " FROM "
+            "   v_bios_asset_element_super_parent v "
+            " WHERE "
+            "   (:containerid in (v.id_parent1, v.id_parent2, v.id_parent3, "
+            "                     v.id_parent4, v.id_parent5, v.id_parent6, "
+            "                     v.id_parent7, v.id_parent8, v.id_parent9, "
+            "                     v.id_parent10) OR :containerid = 0 ) ";
+
+        if(!filter.empty())
+            request += " AND ( " + select_assets_by_container_filter (filter) +")";
+        log_debug("[v_bios_asset_element_super_parent]: %s", request.c_str());
+
+        // Can return more than one row.
+        tntdb::Statement select_data = conn.prepareCached(request);
+
+        tntdb::Result result = select_data.set("containerid", id).
+                                  select();
+        log_debug("[v_bios_asset_element_super_parent]: were selected %" PRIu32 " rows",
+                                                            result.size());
+        for ( auto &row: result ) {
+            std::string name;
+            row["name"].get (name);
+            assets.push_back (name);
+        }
+        return 0;
+    }
+    catch (const std::exception& e) {
+        log_error ("Error: ",e.what());
+        return -1;
+    }
+}
+
+int
+select_assets_by_filter (tntdb::Connection &conn,
+                         const std::set<std::string> &types_and_subtypes,
+                         std::vector <std::string>& assets)
+{
+    try {
+        std::string request =
+            " SELECT "
+            "   v.name, "
+            "   v.id_asset_element as asset_id, "
+            "   v.id_asset_device_type as subtype_id, "
+            "   v.type_name as subtype_name, "
+            "   v.id_type as type_id "
+            " FROM "
+            "   v_bios_asset_element_super_parent v ";
+
+        if(!types_and_subtypes.empty())
+            request += " WHERE " + select_assets_by_container_filter (types_and_subtypes);
+        log_debug("[v_bios_asset_element_super_parent]: %s", request.c_str());
+        // Can return more than one row.
+        tntdb::Statement st = conn.prepareCached(request);
+        tntdb::Result result = st.select();
+        log_debug("[v_bios_asset_element_super_parent]: were selected %" PRIu32 " rows",
+                                                            result.size());
+        for ( auto &row: result ) {
+            std::string name;
+            row["name"].get (name);
+            assets.push_back (name);
+        }
+        return 0;
+    }
+    catch (const std::exception& e) {
+        log_error ("Error: ",e.what());
+        return -1;
+    }
 }
 
 int
@@ -940,6 +1077,108 @@ select_ext_rw_attributes_keytags (tntdb::Connection& conn,
     }
     catch (const std::exception &e) {
         LOG_END_ABNORMAL(e);
+        return -1;
+    }
+}
+
+int
+select_ext_attributes_cb (tntdb::Connection &conn,
+                       uint32_t asset_id,
+                       std::function<void(const tntdb::Row&)> cb)
+{
+    try {
+        // Can return more than one row
+        tntdb::Statement st_extattr = conn.prepareCached(
+            " SELECT"
+            "   v.keytag, v.value, v.read_only"
+            " FROM"
+            "   v_bios_asset_ext_attributes v"
+            " WHERE v.id_asset_element = :asset_id"
+        );
+
+        tntdb::Result result = st_extattr.set("asset_id", asset_id).
+                                          select();
+        log_debug("[v_bios_asset_ext_attributes]: were selected %" PRIu32 " rows", result.size());
+
+        // Go through the selected extra attributes
+        for ( const auto &row: result ) {
+            cb(row);
+        }
+        return 0;
+    }
+    catch (const std::exception &e) {
+        log_error ("select_ext: %s", e.what());
+        return -1;
+    }
+}
+
+int
+select_asset_element_basic_cb (tntdb::Connection &conn,
+                             const std::string &asset_name,
+                             std::function<void(const tntdb::Row&)> cb)
+{
+    log_debug ("asset_name = %s", asset_name.c_str());
+    try{
+        tntdb::Statement st = conn.prepareCached(
+            " SELECT"
+            "   v.id, v.name, v.id_type, v.type_name,"
+            "   v.subtype_id, v.id_parent,"
+            "   v.id_parent_type, v.status,"
+            "   v.priority, v.asset_tag, v.parent_name "
+            " FROM"
+            "   v_web_element v"
+            " WHERE :name = v.name"
+        );
+
+        tntdb::Row row = st.set("name", asset_name).
+                            selectRow();
+        log_debug("[v_web_element]: were selected %" PRIu32 " rows", 1);
+        cb(row);
+        return 0;
+    }
+    catch (const tntdb::NotFound &e) {
+        log_info ("end: asset '%s' not found", asset_name.c_str());
+        return -1;
+    }
+    catch (const std::exception &e) {
+        log_error ("Cannot select basic asset info: %s", e.what());
+        return -1;
+    }
+}
+
+int
+select_assets_cb (tntdb::Connection &conn,
+                  std::function<void(const tntdb::Row&)> cb)
+{
+    try{
+        tntdb::Statement st = conn.prepareCached(
+            " SELECT "
+            "   v.name, "
+            "   v.id,  "
+            "   v.id_type,  "
+            "   v.id_subtype,  "
+            "   v.id_parent,  "
+            "   v.parent_name,  "
+            "   v.status,  "
+            "   v.priority,  "
+            "   v.asset_tag  "
+            " FROM v_bios_asset_element v "
+            );
+
+        tntdb::Result res = st.select ();
+        log_debug("[v_bios_asset_element]: were selected %zu rows", res.size());
+
+        for (const auto& r: res) {
+            cb(r);
+        }
+        return 0;
+    }
+    catch (const tntdb::NotFound &e) {
+        log_debug("[v_bios_asset_element]: asset not found");
+        return -1;
+    }
+    catch (const std::exception &e) {
+        log_error ("[v_bios_asset_element]: error '%s'", e.what());
         return -1;
     }
 }

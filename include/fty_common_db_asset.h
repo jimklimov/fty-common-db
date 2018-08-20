@@ -238,6 +238,23 @@ namespace DBAssets {
                                 uint32_t element_id,
                                 std::function<void(const tntdb::Row&)> cb);
 
+// select_assets_by_container_name_filter: select assets of given types/subtypes from container with a given name
+// return 0 on success (even if nothing was found)
+// returns -1 if error occurs
+    int
+    select_assets_by_container_name_filter (tntdb::Connection &conn,
+                                            const std::string& container_name,
+                                            const std::set <std::string>& filter,
+                                            std::vector <std::string>& assets);
+
+// select_assets_by_filter: select assets of given types/subtypes from v_bios_asset_element_super_parent
+// return 0 on success (even if nothing was found)
+// returns -1 if error occurs
+    int
+    select_assets_by_filter (tntdb::Connection &conn,
+                             const std::set<std::string> &types_and_subtypes,
+                             std::vector <std::string>& assets);
+
 // select_assets_without_container: select all assets in all (or without) containers
 // return 0 on success (even if nothing was found)
 // returns -1 if error occurs
@@ -345,6 +362,25 @@ namespace DBAssets {
                            uint32_t element_id,
                            std::map <std::string, std::pair<std::string, bool> >& out);
 
+// select_ext_attributes_cb: select ass ext attributes of asset, process with cb
+// returns -1 in case of error or 0 for success
+    int
+    select_ext_attributes_cb (tntdb::Connection &conn,
+                           uint32_t asset_id,
+                           std::function<void(const tntdb::Row&)> cb);
+// select_asset_element_basic_cb: select all data about asset from v_web_element, process with cb
+// return -1 in case of error or asset not found, 0 otherwise
+
+    int
+    select_asset_element_basic_cb (tntdb::Connection &conn,
+                                 const std::string &asset_name,
+                                 std::function<void(const tntdb::Row&)> cb);
+
+// select_assets_cb: select data about all assets from v_bios_asset_element, process with cb
+// return -1 in case of error or asset not found, 0 otherwise
+    int
+    select_assets_cb (tntdb::Connection &conn,
+                      std::function<void(const tntdb::Row&)> cb);
 // --------------------------------------------------------------------
 
 // select_monitor_device_type_id: select id based on name from v_bios_device_type
