@@ -97,6 +97,7 @@ typedef struct _fty_common_db_uptime_t fty_common_db_uptime_t;
 
 
 //  Public classes, each with its own header file
+#include "fty_common_db_defs.h"
 #ifdef FTY_COMMON_DB_BUILD_DRAFT_API
 #include "fty_common_db_dbpath.h"
 #include "fty_common_db_asset.h"

@@ -4,6 +4,7 @@
 ################################################################################
 nobase_include_HEADERS = \
     fty_common_db.h \
+    fty_common_db_defs.h \
     fty_common_db_library.h
 
 if ENABLE_DRAFTS
