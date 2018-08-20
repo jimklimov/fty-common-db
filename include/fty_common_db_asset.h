@@ -443,6 +443,14 @@ namespace DBAssets {
     std::vector <std::string>
     list_devices_with_status (tntdb::Connection &conn, std::string status);
 
+// get_active_power_devices: get count of active power devices
+    int
+    get_active_power_devices (tntdb::Connection &conn);
+
+// get_status_from_db: read status (active/nonactive) of given element
+    std::string
+    get_status_from_db (tntdb::Connection conn,
+                        std::string &element_name);
 } // namespace
 
 void

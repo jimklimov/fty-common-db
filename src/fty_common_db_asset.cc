@@ -1758,6 +1758,66 @@ list_devices_with_status (tntdb::Connection &conn, std::string status)
     return inactive_list;
 }
 
+int
+get_active_power_devices (tntdb::Connection &conn)
+{
+    int count = 0;
+    try {
+        tntdb::Statement st = conn.prepareCached (
+            "SELECT COUNT(*) AS CNT FROM t_bios_asset_element "
+            "WHERE id_subtype IN "
+                "(SELECT id_asset_device_type FROM t_bios_asset_device_type "
+                "WHERE name IN ('epdu', 'sts', 'ups', 'pdu', 'genset')) "
+            "AND status = 'active';"
+        );
+
+        tntdb::Row row = st.selectRow ();
+        zsys_debug ("[get_active_power_devices]: were selected %" PRIu32 " rows", 1);
+
+        row [0].get (count);
+    }
+    catch (const std::exception &e)
+    {
+        zsys_error ("exception caught %s when getting count of active power devices", e.what ());
+        return 0;
+    }
+
+    return count;
+}
+
+
+std::string
+get_status_from_db (tntdb::Connection conn,
+                    std::string &element_name)
+{
+    try {
+        zsys_debug("get_status_from_db: getting status for asset %s", element_name.c_str());
+        tntdb::Statement st = conn.prepareCached(
+            " SELECT v.status "
+            " FROM v_bios_asset_element v "
+            " WHERE v.name=:vname ;"
+            );
+
+        tntdb::Row row = st.set ("vname", element_name).selectRow ();
+        zsys_debug("get_status_from_db: [v_bios_asset_element]: were selected %zu rows", row.size());
+        if (row.size() == 1) {
+            std::string ret;
+            row [0].get (ret);
+            return ret;
+        } else {
+            return "unknown";
+        }
+    }
+    catch (const tntdb::NotFound &e) {
+        zsys_debug("get_status_from_db: [v_bios_asset_element]: %s asset not found", element_name.c_str ());
+        return "unknown";
+    }
+    catch (const std::exception &e) {
+        zsys_error ("get_status_from_db: [v_bios_asset_element]: error '%s'", e.what());
+        return "unknown";
+    }
+}
+
 } // namespace
 
 //  --------------------------------------------------------------------------
