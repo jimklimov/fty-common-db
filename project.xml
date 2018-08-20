@@ -79,5 +79,6 @@
     <class name = "fty_common_db_asset_delete" selftest = "0" stable = "1" > Functions deleting assets from database. </class>
     <class name = "fty_common_db_asset_insert" selftest = "0" stable = "1" > Functions inserting assets to database. </class>
     <class name = "fty_common_db_asset_update" selftest = "0" stable = "1" > Functions updating assets in database. </class>
+    <class name = "fty_common_db_uptime" selftest = "0" stable = "1" > Uptime support function. </class>
 
 </project>

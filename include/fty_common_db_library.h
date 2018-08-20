@@ -45,7 +45,6 @@
 #define FTY_COMMON_DB_VERSION \
     FTY_COMMON_DB_MAKE_VERSION(FTY_COMMON_DB_VERSION_MAJOR, FTY_COMMON_DB_VERSION_MINOR, FTY_COMMON_DB_VERSION_PATCH)
 
-
 #if defined (__WINDOWS__)
 #   if defined FTY_COMMON_DB_STATIC
 #       define FTY_COMMON_DB_EXPORT
@@ -92,6 +91,8 @@ typedef struct _fty_common_db_asset_insert_t fty_common_db_asset_insert_t;
 #define FTY_COMMON_DB_ASSET_INSERT_T_DEFINED
 typedef struct _fty_common_db_asset_update_t fty_common_db_asset_update_t;
 #define FTY_COMMON_DB_ASSET_UPDATE_T_DEFINED
+typedef struct _fty_common_db_uptime_t fty_common_db_uptime_t;
+#define FTY_COMMON_DB_UPTIME_T_DEFINED
 #endif // FTY_COMMON_DB_BUILD_DRAFT_API
 
 
@@ -102,6 +103,7 @@ typedef struct _fty_common_db_asset_update_t fty_common_db_asset_update_t;
 #include "fty_common_db_asset_delete.h"
 #include "fty_common_db_asset_insert.h"
 #include "fty_common_db_asset_update.h"
+#include "fty_common_db_uptime.h"
 #endif // FTY_COMMON_DB_BUILD_DRAFT_API
 
 #ifdef FTY_COMMON_DB_BUILD_DRAFT_API
