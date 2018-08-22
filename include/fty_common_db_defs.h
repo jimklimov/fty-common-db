@@ -159,14 +159,18 @@ struct db_a_elmnt_t {
         ext{}
     {}
 };
+
+// FIXME: mapping is taken from fty-common-rest and should be extracted into a common library
 //! Possible error types
 enum errtypes {
     //! First error should be UNKNOWN as it maps to zero and zero is weird
-    UNKNOWN_ERR,
-    DB_ERR,
-    BAD_INPUT,
-    INTERNAL_ERR,
-    LICENSING_ERR,
+    UNKNOWN_ERR = 0,
+    INTERNAL_ERR = 42,
+    REQUEST_PARAM_BAD_ERR = 47,
+    DATA_CONFLICT_ERR = 50,
+    DB_ERR = 56,
+    BAD_INPUT = 57,
+    LICENSING_ERR = 58,
 };
 
 //! Constants for database errors

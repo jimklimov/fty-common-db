@@ -30,11 +30,10 @@
 #include <tntdb/result.h>
 #include <tntdb/error.h>
 #include <tntdb/transaction.h>
-#include <fty_common_rest.h>
 #include <fty_common_db_dbpath.h>
 #include <fty_common.h>
 
-#include <fty_common_db_asset.h>
+#include <fty_common_db_defs.h>
 #include "fty_common_db_classes.h"
 
 namespace DBAssetsInsert {
@@ -270,7 +269,7 @@ s_multi_insert_statement (tntdb::Connection& conn,
     return st;
 }
 
-int
+db_reply_t
 insert_into_asset_ext_attributes (tntdb::Connection &conn,
                                   uint32_t element_id,
                                   zhash_t* attributes,
@@ -278,12 +277,25 @@ insert_into_asset_ext_attributes (tntdb::Connection &conn,
                                   std::string &err)
 {
     LOG_START;
-    err = "";
+    size_t i = 0;
 
-    if (!attributes)
-        return 0;
-    if ( zhash_size (attributes) == 0 )
-        return 0;
+    db_reply_t ret = db_reply_new();
+    if (!attributes) {
+        ret.status     = 0;
+        ret.errtype    = DB_ERR;
+        ret.errsubtype = DB_ERROR_BADINPUT;
+        ret.msg        = "no attributes to insert (NULL)";
+        log_error ("end: %s, %s", "ignore insert", ret.msg.c_str());
+        return ret;
+    }
+    if ( zhash_size (attributes) == 0 ) {
+        ret.status     = 0;
+        ret.errtype    = DB_ERR;
+        ret.errsubtype = DB_ERROR_BADINPUT;
+        ret.msg        = "no attributes to insert (size == 0)";
+        log_error ("end: %s, %s", "ignore insert", ret.msg.c_str());
+        return ret;
+    }
 
     try {
         auto st = s_multi_insert_statement(
@@ -293,14 +305,18 @@ insert_into_asset_ext_attributes (tntdb::Connection &conn,
                 attributes);
         size_t i = st.execute();
         log_debug("%zu attributes written", i);
+        ret.status     = 1;
         LOG_END;
-        return 0;
+        return ret;
     }
     catch (const std::exception& e) {
+        ret.affected_rows = i;
+        ret.status     = 0;
+        ret.errtype       = DB_ERR;
+        ret.errsubtype    = DB_ERROR_INTERNAL;
+        ret.msg           = e.what();
         LOG_END_ABNORMAL(e);
-        int idx;
-        bios_error_idx(idx, err, "internal-error", "");
-        return -idx;
+        return ret;
     }
 }
 
@@ -407,10 +423,8 @@ insert_element_into_groups (tntdb::Connection &conn,
     if ( asset_element_id == 0 )
     {
         ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_BADINPUT;
+        ret.errtype    = REQUEST_PARAM_BAD_ERR;
         log_error ("end: %s, %s", "ignore insert", "0 value of asset_element_id is not allowed");
-        bios_error_idx(ret.rowid, ret.msg, "request-param-bad", "id", "0", "valid id");
         return ret;
     }
     if ( groups.empty() )
@@ -444,20 +458,16 @@ insert_element_into_groups (tntdb::Connection &conn,
         else
         {
             ret.status     = 0;
-            ret.errtype    = DB_ERR;
-            ret.errsubtype = DB_ERROR_BADINPUT;
+            ret.errtype    = INTERNAL_ERR;
             ret.msg        = "not all links were inserted";
             log_error ("end: %s", ret.msg.c_str());
-            bios_error_idx(ret.rowid, ret.msg, "internal-error", "Cannot insert into all groups");
         }
         return ret;
     }
     catch (const std::exception &e) {
         LOG_END_ABNORMAL(e);
         ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_INTERNAL;
-        bios_error_idx(ret.rowid, ret.msg, "internal-error", "See logs for more details");
+        ret.errtype    = INTERNAL_ERR;
         return ret;
     }
 }
@@ -606,9 +616,7 @@ insert_into_asset_links (tntdb::Connection &conn,
     else
     {
         ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_BADINPUT;
-        bios_error_idx(ret.rowid, ret.msg, "internal-error", "not all links were inserted successfully");
+        ret.errtype    = INTERNAL_ERR;
         log_error ("end: %s", "not all links were inserted");
         LOG_END;
         return ret;
@@ -639,9 +647,7 @@ insert_into_asset_element (tntdb::Connection &conn,
     if (!persist::is_ok_name (element_name))
     {
         ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_BADINPUT;
-        bios_error_idx (ret.rowid, ret.msg, "request-param-bad", "name", element_name, "<valid and unique asset name>");
+        ret.errtype    = REQUEST_PARAM_BAD_ERR;
         log_error ("end: %s, %s", "ignore insert", ret.msg.c_str ());
         return ret;
     }
@@ -649,10 +655,8 @@ insert_into_asset_element (tntdb::Connection &conn,
     if (!persist::is_ok_element_type (element_type_id))
     {
         ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_BADINPUT;
+        ret.errtype    = REQUEST_PARAM_BAD_ERR;
         ret.msg        = "0 value of element_type_id is not allowed";
-        bios_error_idx (ret.rowid, ret.msg, "request-param-bad", "element_type_id", element_type_id, "<valid element type id>");
         log_error ("end: %s, %s", "ignore insert", ret.msg.c_str ());
         return ret;
     }
@@ -661,9 +665,7 @@ insert_into_asset_element (tntdb::Connection &conn,
     if (element_type_id == persist::asset_type::DATACENTER && parent_id != 0)
     {
         ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_BADINPUT;
-        bios_error_idx (ret.rowid, ret.msg, "request-param-bad", "location", parent_id, "<nothing for type datacenter>");
+        ret.errtype    = REQUEST_PARAM_BAD_ERR;
         return ret;
     }
     log_debug ("input parameters are correct");
@@ -728,8 +730,7 @@ insert_into_asset_element (tntdb::Connection &conn,
         }
         if (ret.affected_rows == 0) {
             ret.status = 0;
-            //TODO: rework to bad param
-            bios_error_idx(ret.rowid, ret.msg, "data-conflict", element_name, "Most likely duplicate entry.");
+            ret.errtype = DATA_CONFLICT_ERR;
         }
         else
             ret.status = 1;
@@ -739,9 +740,7 @@ insert_into_asset_element (tntdb::Connection &conn,
     catch (const std::exception &e) {
         LOG_END_ABNORMAL(e);
         ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_INTERNAL;
-        bios_error_idx(ret.rowid, ret.msg, "internal-error", "Unspecified issue with database.");
+        ret.errtype    = INTERNAL_ERR;
         return ret;
     }
 }
@@ -764,20 +763,16 @@ insert_into_monitor_asset_relation (tntdb::Connection &conn,
     if ( element_id == 0 )
     {
         ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_BADINPUT;
+        ret.errtype    = INTERNAL_ERR;
         log_error ("end: %s, %s", "ignore insert", "0 value of element_id is not allowed");
-        bios_error_idx(ret.rowid, ret.msg, "internal-error", "");
         return ret;
     }
     if ( monitor_id == 0 )
     {
         ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_BADINPUT;
+        ret.errtype    = INTERNAL_ERR;
         ret.msg        = "0 value of monitor_id is not allowed";
         log_error ("end: %s, %s", "ignore insert", "0 value of monitor_id is not allowed");
-        bios_error_idx(ret.rowid, ret.msg, "internal-error", "");
         return ret;
     }
     log_debug ("input parameters are correct");
@@ -804,9 +799,7 @@ insert_into_monitor_asset_relation (tntdb::Connection &conn,
     catch (const std::exception &e) {
         LOG_END_ABNORMAL(e);
         ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_INTERNAL;
-        bios_error_idx(ret.rowid, ret.msg, "internal-error", "");
+        ret.errtype    = INTERNAL_ERR;
         return ret;
     }
 }
@@ -844,9 +837,7 @@ insert_into_monitor_device (tntdb::Connection &conn,
     catch (const std::exception &e) {
         LOG_END_ABNORMAL(e);
         ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_INTERNAL;
-        bios_error_idx(ret.rowid, ret.msg, "internal-error", "");
+        ret.errtype    = INTERNAL_ERR;
         return ret;
     }
 }

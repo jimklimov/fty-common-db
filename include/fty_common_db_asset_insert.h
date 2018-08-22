@@ -42,7 +42,7 @@ namespace DBAssetsInsert {
 
 // insert_into_asset_ext_attribute: multi value insert for extended attributes
 // returns error if any insert wasn't successful
-    int
+    db_reply_t
     insert_into_asset_ext_attributes (tntdb::Connection &conn,
                                       uint32_t element_id,
                                       zhash_t* attributes,
