@@ -30,20 +30,6 @@
 #ifdef __cplusplus
 #define INPUT_POWER_CHAIN     1
 
-// all fields called name
-#define MAX_NAME_LENGTH         50
-// t_bios_asset_ext_attributes.keytag
-#define MAX_KEYTAG_LENGTH       40
-// t_bios_asset_ext_attributes.value
-#define MAX_VALUE_LENGTH        255
-// t_bios_asset_device.mac
-#define MAX_MAC_LENGTH          17
-// t_bios_asset_device.hostname
-#define MAX_HOSTNAME_LENGTH     25
-// t_bios_asset_device.fullhostname
-#define MAX_FULLHOSTNAME_LENGTH 45
-#define MAX_DESCRIPTION_LENGTH  255
-
 typedef std::function<void(const tntdb::Row&)> row_cb_f ;
 
 template <typename T>
@@ -103,6 +89,15 @@ struct db_web_basic_element_t {
     std::string asset_tag;
     std::string parent_name;
 };
+
+typedef struct _asset_link
+{
+    uint32_t    src;     //!< id of src element
+    uint32_t    dest;    //!< id of dest element
+    char        *src_out; //!< outlet in src
+    char        *dest_in; //!< inlet in dest
+    uint16_t    type;    //!< link type id
+} link_t;
 
 struct db_tmp_link_t {
     uint32_t         src_id;
