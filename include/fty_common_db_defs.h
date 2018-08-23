@@ -30,20 +30,6 @@
 #ifdef __cplusplus
 #define INPUT_POWER_CHAIN     1
 
-// all fields called name
-#define MAX_NAME_LENGTH         50
-// t_bios_asset_ext_attributes.keytag
-#define MAX_KEYTAG_LENGTH       40
-// t_bios_asset_ext_attributes.value
-#define MAX_VALUE_LENGTH        255
-// t_bios_asset_device.mac
-#define MAX_MAC_LENGTH          17
-// t_bios_asset_device.hostname
-#define MAX_HOSTNAME_LENGTH     25
-// t_bios_asset_device.fullhostname
-#define MAX_FULLHOSTNAME_LENGTH 45
-#define MAX_DESCRIPTION_LENGTH  255
-
 typedef std::function<void(const tntdb::Row&)> row_cb_f ;
 
 template <typename T>
@@ -103,6 +89,15 @@ struct db_web_basic_element_t {
     std::string asset_tag;
     std::string parent_name;
 };
+
+typedef struct _asset_link
+{
+    uint32_t    src;     //!< id of src element
+    uint32_t    dest;    //!< id of dest element
+    char        *src_out; //!< outlet in src
+    char        *dest_in; //!< inlet in dest
+    uint16_t    type;    //!< link type id
+} link_t;
 
 struct db_tmp_link_t {
     uint32_t         src_id;
@@ -164,14 +159,18 @@ struct db_a_elmnt_t {
         ext{}
     {}
 };
+
+// FIXME: mapping is taken from fty-common-rest and should be extracted into a common library
 //! Possible error types
 enum errtypes {
     //! First error should be UNKNOWN as it maps to zero and zero is weird
-    UNKNOWN_ERR,
-    DB_ERR,
-    BAD_INPUT,
-    INTERNAL_ERR,
-    LICENSING_ERR,
+    UNKNOWN_ERR = 0,
+    INTERNAL_ERR = 42,
+    REQUEST_PARAM_BAD_ERR = 47,
+    DATA_CONFLICT_ERR = 50,
+    DB_ERR = 56,
+    BAD_INPUT = 57,
+    LICENSING_ERR = 58,
 };
 
 //! Constants for database errors
