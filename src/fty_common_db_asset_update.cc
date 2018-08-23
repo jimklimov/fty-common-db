@@ -26,4 +26,76 @@
 @end
 */
 
+#include <tntdb/row.h>
+#include <tntdb/result.h>
+#include <tntdb/error.h>
+
+#include <fty_common.h>
+
 #include "fty_common_db_classes.h"
+
+#define ERRCODE_ABNORMAL 1
+
+namespace DBAssetsUpdate {
+
+int
+update_asset_element (tntdb::Connection &conn,
+                      uint32_t element_id,
+                      const char *element_name,
+                      uint32_t parent_id,
+                      const char *status,
+                      uint16_t priority,
+                      const char *asset_tag,
+                      int32_t &affected_rows)
+{
+    LOG_START;
+    log_debug ("  element_id = %" PRIi32, element_id);
+    log_debug ("  element_name = '%s'", element_name);
+    log_debug ("  parent_id = %" PRIu32, parent_id);
+    log_debug ("  status = '%s'", status);
+    log_debug ("  priority = %" PRIu16, priority);
+    log_debug ("  asset_tag = '%s'", asset_tag);
+
+    // if parent id == 0 ->  it means that there is no parent and value
+    // should be updated to NULL
+    try{
+        tntdb::Statement st = conn.prepareCached(
+            " UPDATE"
+            "   t_bios_asset_element"
+            " SET"
+//            "   name = :name,"
+            "   asset_tag = :asset_tag,"
+            "   id_parent = :id_parent,"
+            "   status = :status,"
+            "   priority = :priority"
+            " WHERE id_asset_element = :id"
+        );
+
+        st = st.set("id", element_id).
+//                           set("name", element_name).
+                           set("status", status).
+                           set("priority", priority).
+                           set("asset_tag", asset_tag);
+
+        if ( parent_id != 0 )
+        {
+            affected_rows = st.set("id_parent", parent_id).
+                               execute();
+        }
+        else
+        {
+            affected_rows = st.setNull("id_parent").
+                               execute();
+        }
+        log_debug("[t_asset_element]: updated %" PRIu32 " rows", affected_rows);
+        LOG_END;
+        // if we are here and affected rows = 0 -> nothing was updated because
+        // it was the same
+        return 0;
+    }
+    catch (const std::exception &e) {
+        LOG_END_ABNORMAL(e);
+        return ERRCODE_ABNORMAL;
+    }
+}
+} // namespace end
