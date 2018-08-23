@@ -22,17 +22,23 @@
 #ifndef FTY_COMMON_DB_ASSET_UPDATE_H_INCLUDED
 #define FTY_COMMON_DB_ASSET_UPDATE_H_INCLUDED
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <tntdb/connect.h>
 
-//  @interface
+namespace DBAssetsUpdate {
 
+// update_asset_element:
+// name would not be updated, but to provide a functionality for future
+// parameter was added
 
-//  @end
+    int
+    update_asset_element (tntdb::Connection &conn,
+                          uint32_t element_id,
+                          const char *element_name,
+                          uint32_t parent_id,
+                          const char *status,
+                          uint16_t priority,
+                          const char *asset_tag,
+                          int32_t &affected_rows);
 
-#ifdef __cplusplus
-}
-#endif
-
+} // end namespace
 #endif
