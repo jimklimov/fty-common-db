@@ -1321,13 +1321,13 @@ select_asset_element_web_byName (tntdb::Connection &conn,
         row[2].get(ret.item.type_id);
         row[3].get(ret.item.type_name);
         row[4].get(ret.item.subtype_id);
-        row[4].get(ret.item.subtype_name);
-        row[5].get(ret.item.parent_id);
-        row[6].get(ret.item.parent_type_id);
-        row[7].get(ret.item.status);
-        row[8].get(ret.item.priority);
-        row[9].get(ret.item.asset_tag);
-        row[10].get(ret.item.parent_name);
+        row[5].get(ret.item.subtype_name);
+        row[6].get(ret.item.parent_id);
+        row[7].get(ret.item.parent_type_id);
+        row[8].get(ret.item.status);
+        row[9].get(ret.item.priority);
+        row[10].get(ret.item.asset_tag);
+        row[11].get(ret.item.parent_name);
 
         ret.status = 1;
         return ret;
