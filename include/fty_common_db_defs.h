@@ -164,13 +164,13 @@ struct db_a_elmnt_t {
 //! Possible error types
 enum errtypes {
     //! First error should be UNKNOWN as it maps to zero and zero is weird
-    UNKNOWN_ERR = 0,
-    INTERNAL_ERR,
-    REQUEST_PARAM_BAD_ERR,
-    DATA_CONFLICT_ERR,
+    UNKNOWN_ERR,
     DB_ERR,
     BAD_INPUT,
+    INTERNAL_ERR,
     LICENSING_ERR,
+    REQUEST_PARAM_BAD_ERR,
+    DATA_CONFLICT_ERR,
 };
 
 //! Constants for database errors
