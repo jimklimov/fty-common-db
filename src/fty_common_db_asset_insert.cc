@@ -647,7 +647,9 @@ insert_into_asset_element (tntdb::Connection &conn,
     if (!persist::is_ok_name (element_name))
     {
         ret.status     = 0;
-        ret.errtype    = REQUEST_PARAM_BAD_ERR;
+        ret.errtype    = DB_ERR;
+        ret.errsubtype = DB_ERROR_BADINPUT;
+        //        bios_error_idx (ret.rowid, ret.msg, "request-param-bad", "element_type_id", element_type_id, "<valid element type id>");
         log_error ("end: %s, %s", "ignore insert", ret.msg.c_str ());
         return ret;
     }
@@ -655,7 +657,8 @@ insert_into_asset_element (tntdb::Connection &conn,
     if (!persist::is_ok_element_type (element_type_id))
     {
         ret.status     = 0;
-        ret.errtype    = REQUEST_PARAM_BAD_ERR;
+        ret.errtype    = DB_ERR;
+        ret.errsubtype = DB_ERROR_BADINPUT;
         ret.msg        = "0 value of element_type_id is not allowed";
         log_error ("end: %s, %s", "ignore insert", ret.msg.c_str ());
         return ret;
@@ -665,7 +668,8 @@ insert_into_asset_element (tntdb::Connection &conn,
     if (element_type_id == persist::asset_type::DATACENTER && parent_id != 0)
     {
         ret.status     = 0;
-        ret.errtype    = REQUEST_PARAM_BAD_ERR;
+        ret.errtype    = DB_ERR;
+        ret.errsubtype = DB_ERROR_BADINPUT;
         return ret;
     }
     log_debug ("input parameters are correct");
@@ -730,7 +734,8 @@ insert_into_asset_element (tntdb::Connection &conn,
         }
         if (ret.affected_rows == 0) {
             ret.status = 0;
-            ret.errtype = DATA_CONFLICT_ERR;
+            ret.errtype    = DB_ERR;
+            ret.errsubtype = DB_ERROR_BADINPUT;
         }
         else
             ret.status = 1;
@@ -740,7 +745,8 @@ insert_into_asset_element (tntdb::Connection &conn,
     catch (const std::exception &e) {
         LOG_END_ABNORMAL(e);
         ret.status     = 0;
-        ret.errtype    = INTERNAL_ERR;
+        ret.errtype    = DB_ERR;
+        ret.errsubtype = DB_ERROR_INTERNAL;
         return ret;
     }
 }
