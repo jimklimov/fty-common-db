@@ -537,7 +537,7 @@ select_assets_by_container_name_filter (tntdb::Connection &conn,
         return 0;
     }
     catch (const std::exception& e) {
-        log_error ("Error: ",e.what());
+        log_error ("Error: ", e.what());
         return -1;
     }
 }
