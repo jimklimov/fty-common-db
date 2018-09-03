@@ -78,7 +78,7 @@ get_dc_upses (const char *asset_name, zhash_t *hash)
     }
 
     conn.close ();
-    return hash;
+    return true;
 }
 
 
