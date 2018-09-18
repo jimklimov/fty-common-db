@@ -32,6 +32,7 @@
 #include <tntdb/transaction.h>
 #include <fty_common_db_dbpath.h>
 #include <fty_common.h>
+#include <fty_common_macros.h>
 
 #include <fty_common_db_defs.h>
 #include "fty_common_db_classes.h"
@@ -284,7 +285,7 @@ insert_into_asset_ext_attributes (tntdb::Connection &conn,
         ret.status     = 0;
         ret.errtype    = DB_ERR;
         ret.errsubtype = DB_ERROR_BADINPUT;
-        ret.msg        = "no attributes to insert (NULL)";
+        ret.msg        = TRANSLATE_ME ("no attributes to insert (NULL)");
         log_error ("end: %s, %s", "ignore insert", ret.msg.c_str());
         return ret;
     }
@@ -292,7 +293,7 @@ insert_into_asset_ext_attributes (tntdb::Connection &conn,
         ret.status     = 0;
         ret.errtype    = DB_ERR;
         ret.errsubtype = DB_ERROR_BADINPUT;
-        ret.msg        = "no attributes to insert (size == 0)";
+        ret.msg        = TRANSLATE_ME ("no attributes to insert (size == 0)");
         log_error ("end: %s, %s", "ignore insert", ret.msg.c_str());
         return ret;
     }
@@ -459,7 +460,7 @@ insert_element_into_groups (tntdb::Connection &conn,
         {
             ret.status     = 0;
             ret.errtype    = INTERNAL_ERR;
-            ret.msg        = "not all links were inserted";
+            ret.msg        = TRANSLATE_ME ("not all links were inserted");
             log_error ("end: %s", ret.msg.c_str());
         }
         return ret;
@@ -659,7 +660,7 @@ insert_into_asset_element (tntdb::Connection &conn,
         ret.status     = 0;
         ret.errtype    = DB_ERR;
         ret.errsubtype = DB_ERROR_BADINPUT;
-        ret.msg        = "0 value of element_type_id is not allowed";
+        ret.msg        = TRANSLATE_ME ("0 value of element_type_id is not allowed");
         log_error ("end: %s, %s", "ignore insert", ret.msg.c_str ());
         return ret;
     }
@@ -777,7 +778,7 @@ insert_into_monitor_asset_relation (tntdb::Connection &conn,
     {
         ret.status     = 0;
         ret.errtype    = INTERNAL_ERR;
-        ret.msg        = "0 value of monitor_id is not allowed";
+        ret.msg        = TRANSLATE_ME ("0 value of monitor_id is not allowed");
         log_error ("end: %s, %s", "ignore insert", "0 value of monitor_id is not allowed");
         return ret;
     }
