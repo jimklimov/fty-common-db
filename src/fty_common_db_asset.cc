@@ -27,6 +27,7 @@
 */
 
 #include "fty_common_db_classes.h"
+#include <fty_common_macros.h>
 #include <assert.h>
 
 namespace DBAssets {
@@ -1279,7 +1280,7 @@ select_asset_element_web_byId (tntdb::Connection &conn,
         ret.status        = 0;
         ret.errtype       = DB_ERR;
         ret.errsubtype    = DB_ERROR_NOTFOUND;
-        ret.msg           = "element with specified id was not found";
+        ret.msg           = TRANSLATE_ME ("element with specified id was not found");
         log_info ("end: %s", ret.msg.c_str());
         return ret;
     }
@@ -1287,7 +1288,7 @@ select_asset_element_web_byId (tntdb::Connection &conn,
         ret.status        = 0;
         ret.errtype       = DB_ERR;
         ret.errsubtype    = DB_ERROR_INTERNAL;
-        ret.msg           = e.what();
+        ret.msg           = JSONIFY (e.what());
         LOG_END_ABNORMAL(e);
         return ret;
     }
