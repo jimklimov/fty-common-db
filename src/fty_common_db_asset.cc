@@ -490,20 +490,22 @@ select_assets_by_container_name_filter (tntdb::Connection &conn,
     uint32_t id = 0;
 
     try {
-        // get container asset id
-        tntdb::Statement select_id = conn.prepareCached(
-            " SELECT "
-            "   v.id "
-            " FROM "
-            "   v_bios_asset_element v "
-            " WHERE "
-            "   v.name = :name "
-        );
+        if (! container_name.empty ()) {
+            // get container asset id
+            tntdb::Statement select_id = conn.prepareCached(
+                " SELECT "
+                "   v.id "
+                " FROM "
+                "   v_bios_asset_element v "
+                " WHERE "
+                "   v.name = :name "
+            );
 
-        tntdb::Row row = select_id.set("name", container_name).
-                            selectRow();
-        row["id"].get(id);
-
+            tntdb::Row row = select_id.set("name", container_name).
+                                selectRow();
+            row["id"].get(id);
+        }
+        //Selects assets in a given container
         std::string request =
             " SELECT "
             "   v.name, "
