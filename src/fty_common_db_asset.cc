@@ -1775,7 +1775,6 @@ get_active_power_devices (tntdb::Connection &conn)
         );
 
         tntdb::Row row = st.selectRow ();
-        log_debug ("[get_active_power_devices]: were selected %zu rows", row.size());
 
         row [0].get (count);
         log_debug ("[get_active_power_devices]: detected %d active power devices", count);
