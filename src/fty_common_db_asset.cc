@@ -1775,13 +1775,13 @@ get_active_power_devices (tntdb::Connection &conn)
         );
 
         tntdb::Row row = st.selectRow ();
-        zsys_debug ("[get_active_power_devices]: were selected %" PRIu32 " rows", 1);
 
         row [0].get (count);
+        log_debug ("[get_active_power_devices]: detected %d active power devices", count);
     }
     catch (const std::exception &e)
     {
-        zsys_error ("exception caught %s when getting count of active power devices", e.what ());
+        log_error ("exception caught %s when getting count of active power devices", e.what ());
         return 0;
     }
 
@@ -1794,7 +1794,7 @@ get_status_from_db (tntdb::Connection conn,
                     std::string &element_name)
 {
     try {
-        zsys_debug("get_status_from_db: getting status for asset %s", element_name.c_str());
+        log_debug("get_status_from_db: getting status for asset %s", element_name.c_str());
         tntdb::Statement st = conn.prepareCached(
             " SELECT v.status "
             " FROM v_bios_asset_element v "
@@ -1802,7 +1802,7 @@ get_status_from_db (tntdb::Connection conn,
             );
 
         tntdb::Row row = st.set ("vname", element_name).selectRow ();
-        zsys_debug("get_status_from_db: [v_bios_asset_element]: were selected %zu rows", row.size());
+        log_debug("get_status_from_db: [v_bios_asset_element]: were selected %zu rows", row.size());
         if (row.size() == 1) {
             std::string ret;
             row [0].get (ret);
@@ -1812,11 +1812,11 @@ get_status_from_db (tntdb::Connection conn,
         }
     }
     catch (const tntdb::NotFound &e) {
-        zsys_debug("get_status_from_db: [v_bios_asset_element]: %s asset not found", element_name.c_str ());
+        log_debug("get_status_from_db: [v_bios_asset_element]: %s asset not found", element_name.c_str ());
         return "unknown";
     }
     catch (const std::exception &e) {
-        zsys_error ("get_status_from_db: [v_bios_asset_element]: error '%s'", e.what());
+        log_error ("get_status_from_db: [v_bios_asset_element]: error '%s'", e.what());
         return "unknown";
     }
 }
