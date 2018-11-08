@@ -65,20 +65,19 @@ src/.dirstamp
 CMakeCache.txt
 CMakeFiles/
 CTestTestfile.cmake
-Findcxxtools.cmake
-Findtntdb.cmake
-Findlog4cplus.cmake
-Findfty_common_logging.cmake
 cmake_install.cmake
 compile_commands.json
 DartConfiguration.tcl
 install_manifest.txt
 Testing/
 
+# CMake in general
+builds/cmake/
+CMake*
+*.cmake
+
 # Repositories downloaded by CI integration scripts
-tntdb/
-log4cplus/
-fty-common-logging/
+tmp-deps/
 
 # Travis build area
 tmp/
