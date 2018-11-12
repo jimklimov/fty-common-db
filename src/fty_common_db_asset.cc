@@ -1821,6 +1821,53 @@ get_status_from_db (tntdb::Connection conn,
     }
 }
 
+db_reply <std::map <int, uint32_t> >
+select_daisy_chain (tntdb::Connection &conn, uint32_t element_id)
+{
+    LOG_START;
+    log_debug ("  element_id = %" PRIu32, element_id);
+    std::map <int, uint32_t> item{};
+    db_reply <std::map <int, uint32_t> > ret = db_reply_new(item);
+
+    std::string query = R"EOF(select aea_daisychain.id_asset_element, aea_daisychain.value as daisy_chain
+        from t_bios_asset_ext_attributes aea_daisychain
+        where aea_daisychain.keytag = 'daisy_chain' and aea_daisychain.id_asset_element in
+        (
+            select aea_name.id_asset_element from t_bios_asset_ext_attributes aea_name where aea_name.value in
+            (
+                select aea_ip.value
+                    from t_bios_asset_ext_attributes aea_ip
+                    where aea_ip.id_asset_element = :elementid and aea_ip.keytag like 'ip.%'
+            )
+        ))EOF";
+    try{
+        // Can return more than one row.
+        tntdb::Statement st = conn.prepareCached(query);
+        tntdb::Result result = st.set("elementid", element_id).select();
+
+        // Go through the selected elements
+        for (auto const& row: result) {
+            uint32_t id;
+            int daisy_chain;
+            row[0].get(id);
+            row[1].get(daisy_chain);
+            ret.item.emplace(daisy_chain, id);
+        }
+        ret.status = 1;
+        LOG_END;
+        return ret;
+    }
+    catch (const std::exception &e) {
+        ret.status        = 0;
+        ret.errtype       = DB_ERR;
+        ret.errsubtype    = DB_ERROR_INTERNAL;
+        ret.msg           = e.what();
+        ret.item.clear();
+        LOG_END_ABNORMAL(e);
+        return ret;
+    }
+}
+
 } // namespace
 
 //  --------------------------------------------------------------------------
