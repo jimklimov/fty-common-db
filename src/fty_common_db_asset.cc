@@ -1821,37 +1821,44 @@ get_status_from_db (tntdb::Connection conn,
     }
 }
 
-db_reply <std::map <int, uint32_t> >
-select_daisy_chain (tntdb::Connection &conn, uint32_t element_id)
+db_reply <std::map <int, std::string> >
+select_daisy_chain (tntdb::Connection &conn, const std::string &asset)
 {
     LOG_START;
-    log_debug ("  element_id = %" PRIu32, element_id);
-    std::map <int, uint32_t> item{};
-    db_reply <std::map <int, uint32_t> > ret = db_reply_new(item);
+    log_debug ("  asset = %s", asset.c_str());
+    std::map <int, std::string> item{};
+    db_reply <std::map <int, std::string> > ret = db_reply_new(item);
 
-    std::string query = R"EOF(select aea_daisychain.id_asset_element, aea_daisychain.value as daisy_chain
-        from t_bios_asset_ext_attributes aea_daisychain
-        where aea_daisychain.keytag = 'daisy_chain' and aea_daisychain.id_asset_element in
+    std::string query = R"EOF(
+select ae_name_out.name, aea_daisychain.value as daisy_chain
+    from t_bios_asset_ext_attributes aea_daisychain join t_bios_asset_element ae_name_out on aea_daisychain.id_asset_element = ae_name_out.id_asset_element
+    where aea_daisychain.keytag = 'daisy_chain' and aea_daisychain.id_asset_element in
+    (
+        select aea_name.id_asset_element from t_bios_asset_ext_attributes aea_name where aea_name.value in
         (
-            select aea_name.id_asset_element from t_bios_asset_ext_attributes aea_name where aea_name.value in
-            (
-                select aea_ip.value
-                    from t_bios_asset_ext_attributes aea_ip
-                    where aea_ip.id_asset_element = :elementid and aea_ip.keytag like 'ip.%'
-            )
-        ))EOF";
+            select aea_ip.value
+                from t_bios_asset_ext_attributes aea_ip
+                where aea_ip.id_asset_element =
+                (
+                    select ae_name_in.id_asset_element
+                        from t_bios_asset_element ae_name_in
+                        where ae_name_in.name = :asset
+                ) and aea_ip.keytag like 'ip.%'
+        )
+    )
+)EOF";
     try{
         // Can return more than one row.
         tntdb::Statement st = conn.prepareCached(query);
-        tntdb::Result result = st.set("elementid", element_id).select();
+        tntdb::Result result = st.set("asset", asset).select();
 
         // Go through the selected elements
         for (auto const& row: result) {
-            uint32_t id;
             int daisy_chain;
-            row[0].get(id);
+            std::string name;
+            row[0].get(name);
             row[1].get(daisy_chain);
-            ret.item.emplace(daisy_chain, id);
+            ret.item.emplace(daisy_chain, name);
         }
         ret.status = 1;
         LOG_END;
