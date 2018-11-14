@@ -310,6 +310,12 @@ namespace DBAssets {
     std::string
     get_status_from_db (tntdb::Connection conn,
                         std::string &element_name);
+
+// select_daisy_chain: get daisy-chain of which asset_id is part based on
+// daisy_chain ext properties, or empty map if not part of a daisy-chain
+// (1 -> asset_internal_name_1, 2 -> asset_internal_name_2...)
+    db_reply <std::map <int, std::string> >
+    select_daisy_chain (tntdb::Connection &conn, const std::string &asset_id);
 } // namespace
 
 void

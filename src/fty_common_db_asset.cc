@@ -1821,6 +1821,60 @@ get_status_from_db (tntdb::Connection conn,
     }
 }
 
+db_reply <std::map <int, std::string> >
+select_daisy_chain (tntdb::Connection &conn, const std::string &asset_id)
+{
+    LOG_START;
+    log_debug ("  asset_id = %s", asset_id.c_str());
+    std::map <int, std::string> item{};
+    db_reply <std::map <int, std::string> > ret = db_reply_new(item);
+
+    std::string query = R"EOF(
+select ae_name_out.name, aea_daisychain.value as daisy_chain
+    from t_bios_asset_ext_attributes aea_daisychain join t_bios_asset_element ae_name_out on aea_daisychain.id_asset_element = ae_name_out.id_asset_element
+    where aea_daisychain.keytag = 'daisy_chain' and aea_daisychain.id_asset_element in
+    (
+        select aea_name.id_asset_element from t_bios_asset_ext_attributes aea_name where aea_name.value in
+        (
+            select aea_ip.value
+                from t_bios_asset_ext_attributes aea_ip
+                where aea_ip.id_asset_element =
+                (
+                    select ae_name_in.id_asset_element
+                        from t_bios_asset_element ae_name_in
+                        where ae_name_in.name = :asset_id
+                ) and aea_ip.keytag like 'ip.%'
+        )
+    )
+)EOF";
+    try{
+        // Can return more than one row.
+        tntdb::Statement st = conn.prepareCached(query);
+        tntdb::Result result = st.set("asset_id", asset_id).select();
+
+        // Go through the selected elements
+        for (auto const& row: result) {
+            int daisy_chain;
+            std::string name;
+            row[0].get(name);
+            row[1].get(daisy_chain);
+            ret.item.emplace(daisy_chain, name);
+        }
+        ret.status = 1;
+        LOG_END;
+        return ret;
+    }
+    catch (const std::exception &e) {
+        ret.status        = 0;
+        ret.errtype       = DB_ERR;
+        ret.errsubtype    = DB_ERROR_INTERNAL;
+        ret.msg           = e.what();
+        ret.item.clear();
+        LOG_END_ABNORMAL(e);
+        return ret;
+    }
+}
+
 } // namespace
 
 //  --------------------------------------------------------------------------
