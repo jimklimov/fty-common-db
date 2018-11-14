@@ -73,14 +73,8 @@
 #   endif
 #endif
 
-//  Project has no stable classes, so we build the draft API
-#undef  FTY_COMMON_DB_BUILD_DRAFT_API
-#define FTY_COMMON_DB_BUILD_DRAFT_API
-
 //  Opaque class structures to allow forward references
 //  These classes are stable or legacy and built in all releases
-//  Draft classes are by default not built in stable releases
-#ifdef FTY_COMMON_DB_BUILD_DRAFT_API
 typedef struct _fty_common_db_dbpath_t fty_common_db_dbpath_t;
 #define FTY_COMMON_DB_DBPATH_T_DEFINED
 typedef struct _fty_common_db_asset_t fty_common_db_asset_t;
@@ -93,19 +87,16 @@ typedef struct _fty_common_db_asset_update_t fty_common_db_asset_update_t;
 #define FTY_COMMON_DB_ASSET_UPDATE_T_DEFINED
 typedef struct _fty_common_db_uptime_t fty_common_db_uptime_t;
 #define FTY_COMMON_DB_UPTIME_T_DEFINED
-#endif // FTY_COMMON_DB_BUILD_DRAFT_API
 
 
 //  Public classes, each with its own header file
 #include "fty_common_db_defs.h"
-#ifdef FTY_COMMON_DB_BUILD_DRAFT_API
 #include "fty_common_db_dbpath.h"
 #include "fty_common_db_asset.h"
 #include "fty_common_db_asset_delete.h"
 #include "fty_common_db_asset_insert.h"
 #include "fty_common_db_asset_update.h"
 #include "fty_common_db_uptime.h"
-#endif // FTY_COMMON_DB_BUILD_DRAFT_API
 
 #ifdef FTY_COMMON_DB_BUILD_DRAFT_API
 
