@@ -1822,10 +1822,10 @@ get_status_from_db (tntdb::Connection conn,
 }
 
 db_reply <std::map <int, std::string> >
-select_daisy_chain (tntdb::Connection &conn, const std::string &asset)
+select_daisy_chain (tntdb::Connection &conn, const std::string &asset_id)
 {
     LOG_START;
-    log_debug ("  asset = %s", asset.c_str());
+    log_debug ("  asset_id = %s", asset_id.c_str());
     std::map <int, std::string> item{};
     db_reply <std::map <int, std::string> > ret = db_reply_new(item);
 
@@ -1842,7 +1842,7 @@ select ae_name_out.name, aea_daisychain.value as daisy_chain
                 (
                     select ae_name_in.id_asset_element
                         from t_bios_asset_element ae_name_in
-                        where ae_name_in.name = :asset
+                        where ae_name_in.name = :asset_id
                 ) and aea_ip.keytag like 'ip.%'
         )
     )
@@ -1850,7 +1850,7 @@ select ae_name_out.name, aea_daisychain.value as daisy_chain
     try{
         // Can return more than one row.
         tntdb::Statement st = conn.prepareCached(query);
-        tntdb::Result result = st.set("asset", asset).select();
+        tntdb::Result result = st.set("asset_id", asset_id).select();
 
         // Go through the selected elements
         for (auto const& row: result) {
