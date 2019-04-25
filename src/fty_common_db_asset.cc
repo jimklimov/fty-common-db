@@ -100,6 +100,38 @@ name_to_asset_id (std::string asset_name)
 }
 
 int64_t
+name_to_asset_id_check_type (std::string asset_name, uint16_t asset_type)
+{
+    try
+    {
+        int64_t id = 0;
+
+        tntdb::Connection conn = tntdb::connectCached(DBConn::url);
+        tntdb::Statement st = conn.prepareCached(
+                " SELECT id_asset_element"
+                " FROM"
+                "   t_bios_asset_element"
+                " WHERE name = :asset_name AND id_type = :asset_type"
+                );
+
+        tntdb::Row row = st.set("asset_name", asset_name).set("asset_type", asset_type).selectRow();
+        log_debug("[t_bios_asset_element]: were selected %" PRIu32 " rows", 1);
+
+        row [0].get(id);
+        return id;
+    }
+    catch (const tntdb::NotFound &e) {
+        log_error ("no element %s with expected type", asset_name.c_str ());
+        return -1;
+    }
+    catch (const std::exception &e)
+    {
+        log_error ("exception caught %s for element %s", e.what (), asset_name.c_str ());
+        return -2;
+    }
+}
+
+int64_t
 extname_to_asset_id (std::string asset_ext_name)
 {
     try

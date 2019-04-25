@@ -48,6 +48,11 @@ namespace DBAssets {
     int64_t
     name_to_asset_id (std::string asset_name);
 
+// name_to_asset_id_check_type: converts asset internal name to database id if asset is of a specified type
+// returns value < 0 if error ocurres
+    int64_t
+    name_to_asset_id_check_type (std::string asset_name, uint16_t asset_type);
+
 // extname_to_asset_name: converts asset name by the name in ext
 // returns value < 0 if error ocurres
     int
