@@ -751,6 +751,53 @@ select_assets_all_container (tntdb::Connection &conn,
 }
 
 int
+select_asset_element_by_dc
+    (tntdb::Connection& conn,
+     int64_t dc_id,
+     std::function<void(const tntdb::Row&)>& cb)
+{
+    LOG_START;
+
+    try{
+        // use nested SELECT instead of three-table JOIN
+        std::string st =
+            "SELECT "
+            "   v.id, v.name, v.type_name, "
+            "   v.subtype_name, v.id_parent, "
+            "   v.status, v.priority, "
+            "   v.asset_tag "
+            " FROM "
+            "   v_web_element v "
+            "WHERE "
+            "   v.id in "
+            "   ( "
+                " SELECT p.id_asset_element "
+                " FROM v_bios_asset_element_super_parent p "
+                " WHERE "
+                "   :containerid in ( p.id_parent1, p.id_parent2, p.id_parent3, "
+                "                     p.id_parent4, p.id_parent5, p.id_parent6, "
+                "                     p.id_parent7, p.id_parent8, p.id_parent9, "
+                "                     p.id_parent10) "
+            "   ) ";
+
+        //DO NOT CACHE THIS! It will crash MySQL
+        tntdb::Statement select_data = conn.prepare(st);
+
+        tntdb::Result result = select_data.set("containerid", dc_id).select();
+
+        for (const auto& r: result) {
+            cb(r);
+        }
+        LOG_END;
+        return 0;
+    }
+    catch (const std::exception &e) {
+        LOG_END_ABNORMAL(e);
+        return -1;
+    }
+}
+
+int
 select_asset_element_all (tntdb::Connection& conn,
                           std::function<void(const tntdb::Row&)>& cb)
 {

@@ -139,6 +139,13 @@ namespace DBAssets {
                                  std::string status,
                                  std::function<void(const tntdb::Row&)> cb);
 
+// select_asset_element_by_dc: select everything under a specified DC from v_web_element
+// returns -1 in case of error or 0 for success
+    int
+    select_asset_element_by_dc (tntdb::Connection& conn,
+                                int64_t dc_id,
+                                std::function<void(const tntdb::Row&)>& cb);
+
 // select_asset_element_all: select everything from v_web_element
 // returns -1 in case of error or 0 for success
     int
