@@ -29,32 +29,32 @@
 namespace DBAssets {
 
 // id_to_name_ext_name: converts database id to internal name and extended (unicode) name
-// returns empty pair of names if error
+// returns empty pair of names if error occurs
     std::pair <std::string, std::string>
     id_to_name_ext_name (uint32_t asset_id);
 
 // extname_to_asset_id: converts extended name to database id
-// returns value < 0 if error ocurres
+// returns value < 0 if error ocurrs
     int64_t
     extname_to_asset_id (std::string asset_ext_name);
 
 // name_to_extname: converts internal name to extended name
-// returns value < 0 if error ocurres
+// returns value < 0 if error ocurrs
     int
     name_to_extname (std::string asset_name, std::string &ext_name);
 
 // name_to_asset_id: converts asset internal name to database id
-// returns value < 0 if error ocurres
+// returns value < 0 if error ocurrs
     int64_t
     name_to_asset_id (std::string asset_name);
 
 // name_to_asset_id_check_type: converts asset internal name to database id if asset is of a specified type
-// returns value < 0 if error ocurres
+// returns value < 0 if error ocurrs
     int64_t
-    name_to_asset_id_check_type (std::string asset_name, uint16_t asset_type);
+    name_to_asset_id_check_type (const std::string& asset_name, uint16_t asset_type);
 
 // extname_to_asset_name: converts asset name by the name in ext
-// returns value < 0 if error ocurres
+// returns value < 0 if error ocurrs
     int
     extname_to_asset_name (std::string asset_ext_name, std::string &asset_name);
 
@@ -144,7 +144,7 @@ namespace DBAssets {
     int
     select_asset_element_by_dc (tntdb::Connection& conn,
                                 int64_t dc_id,
-                                std::function<void(const tntdb::Row&)>& cb);
+                                std::function<void(const tntdb::Row&)> cb);
 
 // select_asset_element_all: select everything from v_web_element
 // returns -1 in case of error or 0 for success

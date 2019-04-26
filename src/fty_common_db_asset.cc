@@ -100,7 +100,7 @@ name_to_asset_id (std::string asset_name)
 }
 
 int64_t
-name_to_asset_id_check_type (std::string asset_name, uint16_t asset_type)
+name_to_asset_id_check_type (const std::string& asset_name, uint16_t asset_type)
 {
     try
     {
@@ -754,7 +754,7 @@ int
 select_asset_element_by_dc
     (tntdb::Connection& conn,
      int64_t dc_id,
-     std::function<void(const tntdb::Row&)>& cb)
+     std::function<void(const tntdb::Row&)> cb)
 {
     LOG_START;
 
