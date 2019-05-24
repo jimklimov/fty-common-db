@@ -342,8 +342,8 @@ select_assets_by_container (tntdb::Connection &conn,
                             uint32_t element_id,
                             std::vector<uint16_t> types,
                             std::vector<uint16_t> subtypes,
-                            std::string without,
-                            std::string status,
+                            const std::string &without,
+                            const std::string &status,
                             std::function<void(const tntdb::Row&)> cb)
 {
     LOG_START;
@@ -665,8 +665,8 @@ int
 select_assets_all_container (tntdb::Connection &conn,
                              std::vector<uint16_t> types,
                              std::vector<uint16_t> subtypes,
-                             std::string without,
-                             std::string status,
+                             const std::string &without,
+                             const std::string &status,
                              std::function<void(const tntdb::Row&)> cb)
 {
     LOG_START;
