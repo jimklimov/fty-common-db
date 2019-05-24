@@ -774,10 +774,10 @@ select_asset_element_by_dc
                 " SELECT p.id_asset_element "
                 " FROM v_bios_asset_element_super_parent p "
                 " WHERE "
-                "   :containerid in ( p.id_parent1, p.id_parent2, p.id_parent3, "
-                "                     p.id_parent4, p.id_parent5, p.id_parent6, "
-                "                     p.id_parent7, p.id_parent8, p.id_parent9, "
-                "                     p.id_parent10) "
+                "   :containerid in ( p.id_asset_element, p.id_parent1, p.id_parent2, "
+                "                     p.id_parent3, p.id_parent4, p.id_parent5, "
+                "                     p.id_parent6, p.id_parent7, p.id_parent8, "
+                "                     p.id_parent9, p.id_parent10) "
             "   ) ";
 
         //DO NOT CACHE THIS! It will crash MySQL
