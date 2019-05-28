@@ -304,7 +304,7 @@ insert_into_asset_ext_attributes (tntdb::Connection &conn,
                 element_id,
                 read_only,
                 attributes);
-        size_t i = st.execute();
+        i = st.execute();
         log_debug("%zu attributes written", i);
         ret.status     = 1;
         LOG_END;

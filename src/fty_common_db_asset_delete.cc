@@ -33,6 +33,7 @@ namespace DBAssetsDelete {
 
 // ATTENTION: in theory there could exist more than one link
 // between two devices
+// FIXME: unused function except in fty-rest tests
 db_reply_t
 delete_asset_link (tntdb::Connection &conn,
                    uint32_t asset_element_id_src,
@@ -103,18 +104,6 @@ delete_asset_links_to (tntdb::Connection &conn,
 
     db_reply_t ret = db_reply_new();
 
-    // input parameters control
-    if ( asset_device_id <= 0 )
-    {
-        ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_BADINPUT;
-        ret.msg        = "value <= 0 of asset_device_id is not allowed";
-        log_error ("end: %s, %s", "ignore delete", ret.msg.c_str());
-        return ret;
-    }
-    log_debug ("input parameters are correct");
-
     try{
         tntdb::Statement st = conn.prepareCached(
             " DELETE FROM"
@@ -152,18 +141,6 @@ delete_asset_group_links (tntdb::Connection &conn,
 
     db_reply_t ret = db_reply_new();
 
-    // input parameters control
-    if ( asset_group_id <= 0 )
-    {
-        ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_BADINPUT;
-        ret.msg        = "0 value of asset_group_id is not allowed";
-        log_error ("end: %s, %s", "ignore delete", ret.msg.c_str());
-        return ret;
-    }
-    log_debug ("input parameters are correct");
-
     try{
         tntdb::Statement st = conn.prepareCached(
             " DELETE FROM"
@@ -192,6 +169,7 @@ delete_asset_group_links (tntdb::Connection &conn,
 
 //////////////////////////////////////////////////////////////////////////////////////
 
+// FIXME: unused function except in fty-rest tests
 db_reply_t
 delete_asset_ext_attribute (tntdb::Connection &conn,
                             const char *keytag,
@@ -272,18 +250,6 @@ delete_asset_ext_attributes_with_ro (tntdb::Connection &conn,
 
     db_reply_t ret = db_reply_new();
 
-    // input parameters control
-    if ( asset_element_id <= 0 )
-    {
-        ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_BADINPUT;
-        ret.msg        = "value <= 0 of asset_element_id is not allowed";
-        log_error ("end: %s, %s", "ignore delete", ret.msg.c_str());
-        return ret;
-    }
-    log_debug ("input parameters are correct");
-
     try{
         tntdb::Statement st = conn.prepareCached(
             " DELETE FROM"
@@ -320,18 +286,6 @@ delete_asset_element (tntdb::Connection &conn,
     log_debug ("asset_element_id = %" PRIu32, asset_element_id);
 
     db_reply_t ret = db_reply_new();
-
-    // input parameters control
-    if ( asset_element_id <= 0 )
-    {
-        ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_BADINPUT;
-        ret.msg        = "value <= 0 of asset_element_id is not allowed";
-        log_error ("end: %s, %s", "ignore delete", ret.msg.c_str());
-        return ret;
-    }
-    log_debug ("input parameters are correct");
 
     try{
         tntdb::Statement st = conn.prepareCached(
@@ -380,18 +334,6 @@ delete_asset_element_from_asset_groups (tntdb::Connection &conn,
 
     db_reply_t ret = db_reply_new();
 
-    // input parameters control
-    if ( asset_element_id <= 0 )
-    {
-        ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_BADINPUT;
-        ret.msg        = "value <= 0 of asset_element_id is not allowed";
-        log_error ("end: %s, %s", "ignore delete", ret.msg.c_str());
-        return ret;
-    }
-    log_debug ("input parameters are correct");
-
     try{
         tntdb::Statement st = conn.prepareCached(
             " DELETE FROM"
@@ -428,27 +370,6 @@ delete_asset_element_from_asset_group (tntdb::Connection &conn,
     log_debug ("  asset_element_id = %" PRIu32, asset_element_id);
 
     db_reply_t ret = db_reply_new();
-
-    // input parameters control
-    if ( asset_element_id <= 0 )
-    {
-        ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_BADINPUT;
-        ret.msg        = "value <= 0 of asset_element_id is not allowed";
-        log_error ("end: %s, %s", "ignore delete", ret.msg.c_str());
-        return ret;
-    }
-    if ( asset_group_id <= 0 )
-    {
-        ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_BADINPUT;
-        ret.msg        = "value <= 0 of asset_group_id is not allowed";
-        log_error ("end: %s, %s", "ignore delete", ret.msg.c_str());
-        return ret;
-    }
-    log_debug ("input parameters are correct");
 
     try{
         tntdb::Statement st = conn.prepareCached(
@@ -499,18 +420,6 @@ delete_monitor_asset_relation_by_a (tntdb::Connection &conn,
     log_debug ("  id = %" PRIu32, id);
 
     db_reply_t ret = db_reply_new();
-
-    // input parameters control
-    if ( id <= 0 )
-    {
-        ret.status     = 0;
-        ret.errtype    = DB_ERR;
-        ret.errsubtype = DB_ERROR_BADINPUT;
-        ret.msg        = "value <= 0 of id is not allowed";
-        log_error ("end: %s, %s", "ignore delete", ret.msg.c_str());
-        return ret;
-    }
-    log_debug ("input parameters are correct");
 
     try{
         tntdb::Statement st = conn.prepareCached(

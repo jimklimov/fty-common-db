@@ -342,8 +342,8 @@ select_assets_by_container (tntdb::Connection &conn,
                             uint32_t element_id,
                             std::vector<uint16_t> types,
                             std::vector<uint16_t> subtypes,
-                            std::string without,
-                            std::string status,
+                            const std::string &without,
+                            const std::string &status,
                             std::function<void(const tntdb::Row&)> cb)
 {
     LOG_START;
@@ -665,8 +665,8 @@ int
 select_assets_all_container (tntdb::Connection &conn,
                              std::vector<uint16_t> types,
                              std::vector<uint16_t> subtypes,
-                             std::string without,
-                             std::string status,
+                             const std::string &without,
+                             const std::string &status,
                              std::function<void(const tntdb::Row&)> cb)
 {
     LOG_START;
@@ -774,10 +774,10 @@ select_asset_element_by_dc
                 " SELECT p.id_asset_element "
                 " FROM v_bios_asset_element_super_parent p "
                 " WHERE "
-                "   :containerid in ( p.id_parent1, p.id_parent2, p.id_parent3, "
-                "                     p.id_parent4, p.id_parent5, p.id_parent6, "
-                "                     p.id_parent7, p.id_parent8, p.id_parent9, "
-                "                     p.id_parent10) "
+                "   :containerid in ( p.id_asset_element, p.id_parent1, p.id_parent2, "
+                "                     p.id_parent3, p.id_parent4, p.id_parent5, "
+                "                     p.id_parent6, p.id_parent7, p.id_parent8, "
+                "                     p.id_parent9, p.id_parent10) "
             "   ) ";
 
         //DO NOT CACHE THIS! It will crash MySQL

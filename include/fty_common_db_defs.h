@@ -139,14 +139,14 @@ struct db_a_elmnt_t {
     {}
 
     db_a_elmnt_t (
-        uint32_t         id,
-        std::string      name,
-        std::string      status,
-        uint32_t         parent_id,
-        uint8_t          priority,
-        uint16_t         type_id,
-        uint16_t         subtype_id,
-        std::string      asset_tag) :
+        uint32_t               id,
+        const std::string      &name,
+        const std::string      &status,
+        uint32_t               parent_id,
+        uint8_t                priority,
+        uint16_t               type_id,
+        uint16_t               subtype_id,
+        const std::string      &asset_tag) :
 
         id(id),
         name(name),
