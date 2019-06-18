@@ -54,7 +54,7 @@ BuildRequires:  fty-common-logging-devel
 BuildRequires:  fty-common-devel
 BuildRequires:  libsodium-devel
 BuildRequires:  zeromq-devel
-BuildRequires:  czmq-devel
+BuildRequires:  czmq-devel >= 3.0.2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description
@@ -85,7 +85,7 @@ Requires:       fty-common-logging-devel
 Requires:       fty-common-devel
 Requires:       libsodium-devel
 Requires:       zeromq-devel
-Requires:       czmq-devel
+Requires:       czmq-devel >= 3.0.2
 
 %description devel
 provides common database tools for agents development tools
