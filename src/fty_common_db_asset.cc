@@ -39,8 +39,8 @@ id_to_name_ext_name (uint32_t asset_id)
     std::string ext_name;
     try
     {
-        tntdb::Connection conn = tntdb::connectCached(DBConn::url);
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Connection conn = tntdb::connect(DBConn::url);
+        tntdb::Statement st = conn.prepare(
             " SELECT asset.name, ext.value "
             " FROM "
             "   t_bios_asset_element AS asset "
@@ -74,8 +74,8 @@ name_to_asset_id (std::string asset_name)
     {
         int64_t id = 0;
 
-        tntdb::Connection conn = tntdb::connectCached(DBConn::url);
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Connection conn = tntdb::connect(DBConn::url);
+        tntdb::Statement st = conn.prepare(
                 " SELECT id_asset_element"
                 " FROM"
                 "   t_bios_asset_element"
@@ -106,8 +106,8 @@ name_to_asset_id_check_type (const std::string& asset_name, uint16_t asset_type)
     {
         int64_t id = 0;
 
-        tntdb::Connection conn = tntdb::connectCached(DBConn::url);
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Connection conn = tntdb::connect(DBConn::url);
+        tntdb::Statement st = conn.prepare(
                 " SELECT id_asset_element"
                 " FROM"
                 "   t_bios_asset_element"
@@ -138,8 +138,8 @@ extname_to_asset_id (std::string asset_ext_name)
     {
         int64_t id = 0;
 
-        tntdb::Connection conn = tntdb::connectCached(DBConn::url);
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Connection conn = tntdb::connect(DBConn::url);
+        tntdb::Statement st = conn.prepare(
                 " SELECT a.id_asset_element FROM t_bios_asset_element AS a "
                 " INNER JOIN t_bios_asset_ext_attributes AS e "
                 " ON a.id_asset_element = e.id_asset_element "
@@ -168,8 +168,8 @@ name_to_extname (std::string asset_name, std::string &ext_name)
 {
     try
     {
-        tntdb::Connection conn = tntdb::connectCached(DBConn::url);
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Connection conn = tntdb::connect(DBConn::url);
+        tntdb::Statement st = conn.prepare(
                 " SELECT e.value FROM t_bios_asset_ext_attributes AS e  "
                 " INNER JOIN t_bios_asset_element AS a "
                 " ON a.id_asset_element = e.id_asset_element "
@@ -198,8 +198,8 @@ extname_to_asset_name (std::string asset_ext_name, std::string &asset_name)
 {
     try
     {
-        tntdb::Connection conn = tntdb::connectCached(DBConn::url);
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Connection conn = tntdb::connect(DBConn::url);
+        tntdb::Statement st = conn.prepare(
                 " SELECT a.name FROM t_bios_asset_element AS a "
                 " INNER JOIN t_bios_asset_ext_attributes AS e "
                 " ON a.id_asset_element = e.id_asset_element "
@@ -234,7 +234,7 @@ select_asset_element_super_parent (
     LOG_START;
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT "
             "   v.id_asset_element as id, "
             "   v.id_parent1 as id_parent1, "
@@ -311,7 +311,7 @@ select_asset_element_all_with_warranty_end(
     LOG_START;
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT "
             "   v.name as name, t.keytag as keytag, t.value as date "
             " FROM v_web_element v "
@@ -404,7 +404,7 @@ select_assets_by_container (tntdb::Connection &conn,
         select += end_select;
 
         // Can return more than one row.
-        tntdb::Statement st = conn.prepareCached (select);
+        tntdb::Statement st = conn.prepare (select);
 
         tntdb::Result result = st.set("containerid", element_id).
                                   select();
@@ -433,7 +433,7 @@ select_assets_by_container (tntdb::Connection &conn,
 
     try {
         // Can return more than one row.
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT "
             "   v.name, "
             "   v.id_asset_element as asset_id, "
@@ -524,7 +524,7 @@ select_assets_by_container_name_filter (tntdb::Connection &conn,
     try {
         if (! container_name.empty ()) {
             // get container asset id
-            tntdb::Statement select_id = conn.prepareCached(
+            tntdb::Statement select_id = conn.prepare(
                 " SELECT "
                 "   v.id "
                 " FROM "
@@ -558,7 +558,7 @@ select_assets_by_container_name_filter (tntdb::Connection &conn,
         log_debug("[v_bios_asset_element_super_parent]: %s", request.c_str());
 
         // Can return more than one row.
-        tntdb::Statement select_data = conn.prepareCached(request);
+        tntdb::Statement select_data = conn.prepare(request);
 
         tntdb::Result result = select_data.set("containerid", id).
                                   select();
@@ -597,7 +597,7 @@ select_assets_by_filter (tntdb::Connection &conn,
             request += " WHERE " + select_assets_by_container_filter (types_and_subtypes);
         log_debug("[v_bios_asset_element_super_parent]: %s", request.c_str());
         // Can return more than one row.
-        tntdb::Statement st = conn.prepareCached(request);
+        tntdb::Statement st = conn.prepare(request);
         tntdb::Result result = st.select();
         log_debug("[v_bios_asset_element_super_parent]: were selected %" PRIu32 " rows",
                                                             result.size());
@@ -644,7 +644,7 @@ select_assets_without_container (tntdb::Connection &conn,
             select += " and t.id_type in (" + list.substr(0,list.size()-1) + ")";
         }
         // Can return more than one row.
-        tntdb::Statement st = conn.prepareCached (select);
+        tntdb::Statement st = conn.prepare (select);
 
         tntdb::Result result = st.select();
         log_debug ("[t_bios_asset_element]: were selected %" PRIu32 " rows",
@@ -733,7 +733,7 @@ select_assets_all_container (tntdb::Connection &conn,
         select += end_select;
 
         // Can return more than one row.
-        tntdb::Statement st = conn.prepareCached (select);
+        tntdb::Statement st = conn.prepare (select);
 
         tntdb::Result result = st.select();
         log_debug("[t_bios_asset_element]: were selected %" PRIu32 " rows",
@@ -804,7 +804,7 @@ select_asset_element_all (tntdb::Connection& conn,
     LOG_START;
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT"
             "   v.id, v.name, v.type_name,"
             "   v.subtype_name, v.id_parent,"
@@ -835,7 +835,7 @@ convert_asset_to_monitor (tntdb::Connection &conn,
                           uint16_t &monitor_element_id)
 {
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT "
             "   v.id_discovered_device "
             " FROM "
@@ -870,7 +870,7 @@ count_keytag(
 {
     LOG_START;
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT COUNT( * ) "
             " FROM t_bios_asset_ext_attributes "
             " WHERE keytag = :keytag AND"
@@ -901,7 +901,7 @@ unique_keytag (tntdb::Connection &conn,
     LOG_START;
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT "
             "   id_asset_element "
             " FROM "
@@ -939,7 +939,7 @@ max_number_of_power_links (tntdb::Connection& conn)
     LOG_START;
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT "
             "   MAX(power_src_count) "
             " FROM "
@@ -967,7 +967,7 @@ count_of_link_src (tntdb::Connection& conn,
     LOG_START;
     static const int id_asset_link_type = 1;
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT COUNT( * ) "
             " FROM v_bios_asset_link "
             " WHERE id_asset_element_src = :id AND"
@@ -997,7 +997,7 @@ max_number_of_asset_groups (tntdb::Connection& conn)
     LOG_START;
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT "
             "   MAX(grp_count) "
             " FROM "
@@ -1026,7 +1026,7 @@ select_group_names (tntdb::Connection& conn,
     LOG_START;
     log_debug("id: %" PRIu32, id);
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT "
             "   v2.name "
             " FROM v_bios_asset_group_relation v1 "
@@ -1072,7 +1072,7 @@ select_v_web_asset_power_link_src_byId (tntdb::Connection& conn,
     LOG_START;
     log_debug("id: %" PRIu32, id);
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT "
             "   v.id_link, "
             "   v.id_asset_element_src, "
@@ -1113,7 +1113,7 @@ select_asset_ext_attribute_by_keytag (tntdb::Connection &conn,
             inlist += ",";
             inlist += std::to_string(id);
         }
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT "
             "   id_asset_ext_attribute, keytag, value, "
             "   id_asset_element, read_only "
@@ -1139,7 +1139,7 @@ select_ext_rw_attributes_keytags (tntdb::Connection& conn,
 {
     LOG_START;
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT"
             "   DISTINCT(keytag)"
             " FROM"
@@ -1170,7 +1170,7 @@ select_ext_attributes_cb (tntdb::Connection &conn,
 {
     try {
         // Can return more than one row
-        tntdb::Statement st_extattr = conn.prepareCached(
+        tntdb::Statement st_extattr = conn.prepare(
             " SELECT"
             "   v.keytag, v.value, v.read_only"
             " FROM"
@@ -1201,7 +1201,7 @@ select_asset_element_basic_cb (tntdb::Connection &conn,
 {
     log_debug ("asset_name = %s", asset_name.c_str());
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT"
             "   v.id, v.name, v.id_type, v.type_name,"
             "   v.subtype_id, v.id_parent,"
@@ -1233,7 +1233,7 @@ select_assets_cb (tntdb::Connection &conn,
                   std::function<void(const tntdb::Row&)> cb)
 {
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT "
             "   v.name, "
             "   v.id,  "
@@ -1277,7 +1277,7 @@ select_monitor_device_type_id (tntdb::Connection &conn,
     db_reply_t ret = db_reply_new();
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT"
             "   v.id"
             " FROM"
@@ -1325,7 +1325,7 @@ select_asset_element_web_byId (tntdb::Connection &conn,
 
     try{
         // Can return more than one row.
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT"
             "   v.id, v.name, v.id_type, v.type_name,"
             "   v.subtype_id, v.subtype_name, v.id_parent,"
@@ -1385,7 +1385,7 @@ select_asset_element_web_byName (tntdb::Connection &conn,
     db_reply <db_web_basic_element_t> ret = db_reply_new(item);
 
     try {
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT"
             "   v.id, v.name, v.id_type, v.type_name,"
             "   v.subtype_id, v.subtype_name, v.id_parent,"
@@ -1442,7 +1442,7 @@ select_ext_attributes (tntdb::Connection &conn,
                                                     db_reply_new(item);
     try {
         // Can return more than one row
-        tntdb::Statement st_extattr = conn.prepareCached(
+        tntdb::Statement st_extattr = conn.prepare(
             " SELECT"
             "   v.keytag, v.value, v.read_only"
             " FROM"
@@ -1509,7 +1509,7 @@ select_asset_device_links_to (tntdb::Connection &conn,
         // Get information about the links the specified device
         // belongs to
         // Can return more than one row
-        tntdb::Statement st_pow = conn.prepareCached(
+        tntdb::Statement st_pow = conn.prepare(
             " SELECT"
             "   v.id_asset_element_src, v.src_out, v.dest_in, v.src_name"
             " FROM"
@@ -1563,7 +1563,7 @@ select_asset_element_groups (tntdb::Connection &conn,
     try {
         // Get information about the groups element belongs to
         // Can return more than one row
-        tntdb::Statement st_gr = conn.prepareCached(
+        tntdb::Statement st_gr = conn.prepare(
             " SELECT "
             "   v1.id_asset_group, v.name "
             " FROM "
@@ -1637,7 +1637,7 @@ select_short_elements (tntdb::Connection &conn,
     }
     try{
         // Can return more than one row.
-        tntdb::Statement st = conn.prepareCached(query);
+        tntdb::Statement st = conn.prepare(query);
 
         tntdb::Result result;
         if ( subtype_id == 0 )
@@ -1684,7 +1684,7 @@ select_asset_elements_by_type (tntdb::Connection &conn,
 
     try{
         // Can return more than one row.
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT"
             "   v.name , v.id_parent, v.status, v.priority, v.id, v.id_subtype"
             " FROM"
@@ -1744,7 +1744,7 @@ select_links_by_container (tntdb::Connection &conn,
     try{
         // v_bios_asset_link are only devices,
         // so there is no need to add more constrains
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT"
             "   v.id_asset_element_src,"
             "   v.id_asset_element_dest"
@@ -1816,7 +1816,7 @@ list_devices_with_status (tntdb::Connection &conn, std::string status)
 {
     std::vector <std::string> inactive_list;
     try {
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT"
             "   v.name, v.id_subtype"
             " FROM"
@@ -1845,7 +1845,7 @@ get_active_power_devices (tntdb::Connection &conn)
 {
     int count = 0;
     try {
-        tntdb::Statement st = conn.prepareCached (
+        tntdb::Statement st = conn.prepare (
             "SELECT COUNT(*) AS CNT FROM t_bios_asset_element "
             "WHERE id_subtype IN "
                 "(SELECT id_asset_device_type FROM t_bios_asset_device_type "
@@ -1874,7 +1874,7 @@ get_status_from_db (tntdb::Connection conn,
 {
     try {
         log_debug("get_status_from_db: getting status for asset %s", element_name.c_str());
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " SELECT v.status "
             " FROM v_bios_asset_element v "
             " WHERE v.name=:vname ;"
@@ -1928,7 +1928,7 @@ select ae_name_out.name, aea_daisychain.value as daisy_chain
 )EOF";
     try{
         // Can return more than one row.
-        tntdb::Statement st = conn.prepareCached(query);
+        tntdb::Statement st = conn.prepare(query);
         tntdb::Result result = st.set("asset_id", asset_id).select();
 
         // Go through the selected elements

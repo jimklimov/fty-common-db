@@ -59,7 +59,7 @@ update_asset_element (tntdb::Connection &conn,
     // if parent id == 0 ->  it means that there is no parent and value
     // should be updated to NULL
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " UPDATE"
             "   t_bios_asset_element"
             " SET"
