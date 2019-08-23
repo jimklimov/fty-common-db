@@ -67,7 +67,7 @@ delete_asset_link (tntdb::Connection &conn,
     log_debug ("input parameters are correct");
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " DELETE"
             " FROM"
             "   t_bios_asset_link"
@@ -105,7 +105,7 @@ delete_asset_links_to (tntdb::Connection &conn,
     db_reply_t ret = db_reply_new();
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " DELETE FROM"
             "   t_bios_asset_link"
             " WHERE"
@@ -142,7 +142,7 @@ delete_asset_group_links (tntdb::Connection &conn,
     db_reply_t ret = db_reply_new();
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " DELETE FROM"
             "   t_bios_asset_group_relation"
             " WHERE"
@@ -201,7 +201,7 @@ delete_asset_ext_attribute (tntdb::Connection &conn,
     log_debug ("input parameters are correct");
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " DELETE FROM"
             "   t_bios_asset_ext_attributes"
             " WHERE"
@@ -251,7 +251,7 @@ delete_asset_ext_attributes_with_ro (tntdb::Connection &conn,
     db_reply_t ret = db_reply_new();
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " DELETE FROM"
             "   t_bios_asset_ext_attributes"
             " WHERE"
@@ -288,7 +288,7 @@ delete_asset_element (tntdb::Connection &conn,
     db_reply_t ret = db_reply_new();
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " DELETE FROM"
             "   t_bios_asset_element"
             " WHERE"
@@ -335,7 +335,7 @@ delete_asset_element_from_asset_groups (tntdb::Connection &conn,
     db_reply_t ret = db_reply_new();
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " DELETE FROM"
             "   t_bios_asset_group_relation"
             " WHERE"
@@ -372,7 +372,7 @@ delete_asset_element_from_asset_group (tntdb::Connection &conn,
     db_reply_t ret = db_reply_new();
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " DELETE FROM"
             "   t_bios_asset_group_relation"
             " WHERE"
@@ -422,7 +422,7 @@ delete_monitor_asset_relation_by_a (tntdb::Connection &conn,
     db_reply_t ret = db_reply_new();
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " DELETE FROM"
             "   t_bios_monitor_asset_relation"
             " WHERE"

@@ -117,7 +117,7 @@ insert_into_asset_ext_attribute_template (tntdb::Connection &conn,
 
     try {
 
-        tntdb::Statement st = conn.prepareCached(query);
+        tntdb::Statement st = conn.prepare(query);
 
         n = st.set("keytag"  , keytag).
                set("value"   , value).
@@ -370,7 +370,7 @@ insert_asset_element_into_asset_group (tntdb::Connection &conn,
     }
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " INSERT INTO"
             "   t_bios_asset_group_relation"
             "   (id_asset_group, id_asset_element)"
@@ -520,7 +520,7 @@ insert_into_asset_link (tntdb::Connection &conn,
     log_debug ("input parameters are correct");
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " INSERT INTO"
             "   t_bios_asset_link"
             "   (id_asset_device_src, id_asset_device_dest,"
@@ -679,7 +679,7 @@ insert_into_asset_element (tntdb::Connection &conn,
         // this concat with last_insert_id may have raise condition issue but hopefully is not important
         tntdb::Statement statement;
         if (update) {
-            statement = conn.prepareCached (
+            statement = conn.prepare (
                 " INSERT INTO t_bios_asset_element "
                 " (name, id_type, id_subtype, id_parent, status, priority, asset_tag) "
                 " VALUES "
@@ -688,7 +688,7 @@ insert_into_asset_element (tntdb::Connection &conn,
             );
         } else {
             // @ is prohibited in name => name-@@-342 is unique
-            statement = conn.prepareCached (
+            statement = conn.prepare (
                 " INSERT INTO t_bios_asset_element "
                 " (name, id_type, id_subtype, id_parent, status, priority, asset_tag) "
                 " VALUES "
@@ -724,7 +724,7 @@ insert_into_asset_element (tntdb::Connection &conn,
         log_debug ("[t_bios_asset_element]: was inserted %" PRIu64 " rows", ret.affected_rows);
         if (! update) {
             // it is insert, fix the name
-            statement = conn.prepareCached (
+            statement = conn.prepare (
                 " UPDATE t_bios_asset_element "
                 "  set name = concat(:name, '-', :id) "
                 " WHERE id_asset_element = :id "
@@ -785,7 +785,7 @@ insert_into_monitor_asset_relation (tntdb::Connection &conn,
     log_debug ("input parameters are correct");
 
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " INSERT INTO"
             "   t_bios_monitor_asset_relation"
             "   (id_discovered_device, id_asset_element)"
@@ -821,7 +821,7 @@ insert_into_monitor_device (tntdb::Connection &conn,
 
     db_reply_t ret = db_reply_new();
     try{
-        tntdb::Statement st = conn.prepareCached(
+        tntdb::Statement st = conn.prepare(
             " INSERT INTO"
             "   t_bios_discovered_device (name, id_device_type)"
             " VALUES (:name, :iddevicetype)"

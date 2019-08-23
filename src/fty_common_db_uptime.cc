@@ -52,7 +52,7 @@ get_dc_upses (const char *asset_name, zhash_t *hash)
     if (dc_id < 0) {
         return false;
     }
-    tntdb::Connection conn = tntdb::connectCached (DBConn::url);
+    tntdb::Connection conn = tntdb::connect (DBConn::url);
 
     int rv = DBAssets::select_assets_by_container (conn,
                                          dc_id,
