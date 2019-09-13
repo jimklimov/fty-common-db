@@ -318,6 +318,10 @@ namespace DBAssets {
     int
     get_active_power_devices (tntdb::Connection &conn);
 
+// get_active_power_devices_helper: get count of active power devices, use new DB connection
+    int
+    get_active_power_devices_helper ();
+
 // get_status_from_db: read status (active/nonactive) of given element
     std::string
     get_status_from_db (tntdb::Connection conn,
