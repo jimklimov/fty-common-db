@@ -1841,15 +1841,6 @@ list_devices_with_status (tntdb::Connection &conn, std::string status)
 }
 
 int
-get_active_power_devices_helper ()
-{
-    tntdb::Connection conn = tntdb::connectCached(DBConn::url);
-
-    int count = get_active_power_devices (conn);
-    return count;
-}
-
-int
 get_active_power_devices (tntdb::Connection &conn)
 {
     int count = 0;
