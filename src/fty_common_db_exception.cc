@@ -34,10 +34,10 @@
 
 namespace fty
 {
-//Public
+    // Public
     void CommonException::throwCommonException(const std::string & data)
     {
-        //get the serializationInfo
+        // get the serializationInfo
         std::stringstream input;
         input << data;
 
@@ -45,7 +45,7 @@ namespace fty
         cxxtools::JsonDeserializer deserializer(input);
         deserializer.deserialize(si);
 
-        //extract the error code, the message and the extra data
+        // extract the error code, the message and the extra data
         int status = 0;
         uint8_t errorType = 0;
         uint8_t errorSubtype = 0;
@@ -100,7 +100,8 @@ namespace fty
         exception.fillSerializationInfo(si.addMember("extraData"));
     }
 
-//Protected
+    // Protected
     void CommonException::fillSerializationInfo(cxxtools::SerializationInfo& /*si*/) const
     {}
+
 } // end namespace

@@ -422,7 +422,7 @@ select_assets_by_container (tntdb::Connection &conn,
     }
 }
 
-//TODO: is this function used anywhere? I can't find it
+// TODO: is this function used anywhere? I can't find it
 int
 select_assets_by_container (tntdb::Connection &conn,
                             uint32_t element_id,
