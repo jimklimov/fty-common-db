@@ -31,8 +31,8 @@ namespace fty
     class DBLimitations
     {
         public:
-            virtual uint32_t activateAsset(const std::string& asset_json);
-            virtual uint32_t deactivateAsset(const std::string& asset_json);
+            virtual std::string activateAsset(const std::string& asset_json);
+            virtual std::string deactivateAsset(const std::string& asset_json);
             virtual bool isOperationAllowed (const std::string& operation);
 
         private:

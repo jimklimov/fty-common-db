@@ -30,13 +30,13 @@
 
 namespace fty
 {
-    uint32_t DBLimitations::activateAsset(const std::string& asset_json)
+    std::string DBLimitations::activateAsset(const std::string& asset_json)
     {
         m_assets.push_back(asset_json);
-        return 0;
+        return std::string();
     }
 
-    uint32_t DBLimitations::deactivateAsset(const std::string& asset_json)
+    std::string DBLimitations::deactivateAsset(const std::string& asset_json)
     {
         auto it = m_assets.begin();
         while (it != m_assets.end())
@@ -49,7 +49,7 @@ namespace fty
             it++;
         }
 
-        return 0;
+        return std::string();
     }
 
     bool DBLimitations::isOperationAllowed (const std::string& operation)
