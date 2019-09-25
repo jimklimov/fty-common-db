@@ -70,7 +70,7 @@ namespace fty {
         inline ErrorType getErrorType() const { return m_errorType; }
         inline ErrorSubtype getErrorSubtype() const { return m_errorSubtype; }
 
-        //return an error payload from an exception
+        // return error payload of the exception
         std::string toJson() const;
 
         friend void operator<<= (cxxtools::SerializationInfo& si, const CommonException & exception);
