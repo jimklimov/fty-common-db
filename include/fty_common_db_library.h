@@ -30,6 +30,7 @@
 //  Set up environment for the application
 
 //  External dependencies
+#include <cxxtools/allocator.h>
 #include <tntdb.h>
 #include <fty_log.h>
 #include <fty_common.h>
@@ -77,6 +78,8 @@
 //  These classes are stable or legacy and built in all releases
 typedef struct _fty_common_db_dbpath_t fty_common_db_dbpath_t;
 #define FTY_COMMON_DB_DBPATH_T_DEFINED
+typedef struct _fty_common_db_exception_t fty_common_db_exception_t;
+#define FTY_COMMON_DB_EXCEPTION_T_DEFINED
 typedef struct _fty_common_db_asset_t fty_common_db_asset_t;
 #define FTY_COMMON_DB_ASSET_T_DEFINED
 typedef struct _fty_common_db_asset_delete_t fty_common_db_asset_delete_t;
@@ -92,6 +95,7 @@ typedef struct _fty_common_db_uptime_t fty_common_db_uptime_t;
 //  Public classes, each with its own header file
 #include "fty_common_db_defs.h"
 #include "fty_common_db_dbpath.h"
+#include "fty_common_db_exception.h"
 #include "fty_common_db_asset.h"
 #include "fty_common_db_asset_delete.h"
 #include "fty_common_db_asset_insert.h"

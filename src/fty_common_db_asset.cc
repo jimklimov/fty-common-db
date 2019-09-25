@@ -422,7 +422,7 @@ select_assets_by_container (tntdb::Connection &conn,
     }
 }
 
-//TODO: is this function used anywhere? I can't find it
+// TODO: is this function used anywhere? I can't find it
 int
 select_assets_by_container (tntdb::Connection &conn,
                             uint32_t element_id,
@@ -1838,15 +1838,6 @@ list_devices_with_status (tntdb::Connection &conn, std::string status)
         throw std::runtime_error("Reading from DB failed.");
     }
     return inactive_list;
-}
-
-int
-get_active_power_devices_helper ()
-{
-    tntdb::Connection conn = tntdb::connectCached(DBConn::url);
-
-    int count = get_active_power_devices (conn);
-    return count;
 }
 
 int
