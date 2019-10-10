@@ -117,9 +117,7 @@
     <header name = "fty_common_db_defs"> Common data types for DB functions </header>
 
     <class name = "fty_common_db_dbpath" selftest = "0" stable = "1" > Fty database path </class>
-    <class name = "fty_common_db_exception" selftest = "0" stable = "1" >Exception class for DB errors </class>
-    <class name = "fty_common_db_limitations" selftest = "0" stable = "1" >Class which implements generic asset creation limitations </class>
-
+    <class name = "fty_common_db_exception" selftest = "0" stable = "1" >Exception classs for DB errors </class>
     <class name = "fty_common_db_asset" selftest = "1" stable = "1" > Asset filtering function </class>
     <class name = "fty_common_db_asset_delete" selftest = "0" stable = "1" > Functions deleting assets from database. </class>
     <class name = "fty_common_db_asset_insert" selftest = "0" stable = "1" > Functions inserting assets to database. </class>

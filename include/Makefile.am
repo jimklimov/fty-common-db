@@ -7,7 +7,6 @@ nobase_include_HEADERS = \
     fty_common_db_defs.h \
     fty_common_db_dbpath.h \
     fty_common_db_exception.h \
-    fty_common_db_limitations.h \
     fty_common_db_asset.h \
     fty_common_db_asset_delete.h \
     fty_common_db_asset_insert.h \
