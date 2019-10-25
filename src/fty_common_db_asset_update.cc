@@ -98,4 +98,41 @@ update_asset_element (tntdb::Connection &conn,
         return ERRCODE_ABNORMAL;
     }
 }
+
+int
+update_asset_status_by_name (const char *element_name,
+                            const char *status)
+{
+    LOG_START;
+
+    if (!streq (status, "active") && !streq (status, "nonactive"))
+    {
+        log_error ("Invalid value of status %s", status);
+        return -1;
+    }
+
+    tntdb::Connection conn = tntdb::connectCached(DBConn::url);
+    tntdb::Statement st = conn.prepareCached(
+        " UPDATE"
+        "   t_bios_asset_element"
+        " SET"
+        "   status = :status"
+        " WHERE name = :name"
+    );
+
+    int32_t affected_rows = st.set("name", element_name).
+                               set("status", status).
+                               execute();
+
+    if (affected_rows > 1)
+    {
+        log_error ("Name %s should be unique", element_name);
+        return -1;
+    }
+
+    log_debug("[t_asset_element]: updated %" PRIu32 " rows", affected_rows);
+    LOG_END;
+    return 0;
+}
+
 } // namespace end

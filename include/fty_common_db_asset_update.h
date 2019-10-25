@@ -40,5 +40,10 @@ namespace DBAssetsUpdate {
                           const char *asset_tag,
                           int32_t &affected_rows);
 
+// update_asset_status_by_name: updates asset status
+    int
+    update_asset_status_by_name (const char *element_name,
+                                const char *status);
+
 } // end namespace
 #endif
