@@ -99,8 +99,7 @@ update_asset_element (tntdb::Connection &conn,
     }
 }
 
-// throws exceptions
-void
+int
 update_asset_status_by_name (const char *element_name,
                             const char *status)
 {
@@ -108,8 +107,8 @@ update_asset_status_by_name (const char *element_name,
 
     if (!streq (status, "active") && !streq (status, "nonactive"))
     {
-         throw fty::CommonException (0, fty::DB_ERR, fty::DB_ERROR_BADINPUT,
-                                    "Invalid value of status");
+        log_error ("Invalid value of status %s", status);
+        return -1;
     }
 
     tntdb::Connection conn = tntdb::connectCached(DBConn::url);
@@ -127,12 +126,13 @@ update_asset_status_by_name (const char *element_name,
 
     if (affected_rows > 1)
     {
-         throw fty::CommonException (0, fty::DB_ERR, fty::DB_ERROR_BADINPUT,
-                                    "Name should be unique");
+        log_error ("Name %s should be unique", element_name);
+        return -1;
     }
 
     log_debug("[t_asset_element]: updated %" PRIu32 " rows", affected_rows);
     LOG_END;
+    return 0;
 }
 
 } // namespace end

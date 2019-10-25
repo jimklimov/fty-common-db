@@ -1868,7 +1868,7 @@ get_active_power_devices (tntdb::Connection &conn)
 }
 
 std::string
-get_status_from_db_helper (std::string &element_name)
+get_status_from_db_helper (const std::string &element_name)
 {
     tntdb::Connection conn = tntdb::connectCached(DBConn::url);
     std::string status = get_status_from_db (conn, element_name);
@@ -1878,7 +1878,7 @@ get_status_from_db_helper (std::string &element_name)
 
 std::string
 get_status_from_db (tntdb::Connection conn,
-                    std::string &element_name)
+                    const std::string &element_name)
 {
     try {
         log_debug("get_status_from_db: getting status for asset %s", element_name.c_str());

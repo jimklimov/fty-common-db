@@ -13,8 +13,6 @@
 # Ignore the source doc texts generated from program sources
 fty_common_db_dbpath.txt
 fty_common_db_dbpath.doc
-fty_common_db_exception.txt
-fty_common_db_exception.doc
 fty_common_db_asset.txt
 fty_common_db_asset.doc
 fty_common_db_asset_delete.txt
