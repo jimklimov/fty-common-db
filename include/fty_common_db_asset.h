@@ -202,7 +202,7 @@ namespace DBAssets {
                         uint32_t id,
                         std::vector<std::string>& out);
 
-//select_v_web_asset_power_link_src_byId: selects information about power links for given device id
+// select_v_web_asset_power_link_src_byId: selects information about power links for given device id
 // returns -1 in case of error or 0 for success
     int
     select_v_web_asset_power_link_src_byId (tntdb::Connection& conn,
@@ -319,9 +319,14 @@ namespace DBAssets {
     get_active_power_devices (tntdb::Connection &conn);
 
 // get_status_from_db: read status (active/nonactive) of given element
+// (without existing DB connection)
+    std::string
+    get_status_from_db_helper (const std::string &element_name);
+
+// get_status_from_db: read status (active/nonactive) of given element
     std::string
     get_status_from_db (tntdb::Connection conn,
-                        std::string &element_name);
+                        const std::string &element_name);
 
 // select_daisy_chain: get daisy-chain of which asset_id is part based on
 // daisy_chain ext properties, or empty map if not part of a daisy-chain

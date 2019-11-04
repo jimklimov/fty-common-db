@@ -14,6 +14,7 @@ pkgconfig_DATA = src/libfty_common_db.pc
 
 src_libfty_common_db_la_SOURCES = \
     src/fty_common_db_dbpath.cc \
+    src/fty_common_db_exception.cc \
     src/fty_common_db_asset.cc \
     src/fty_common_db_asset_delete.cc \
     src/fty_common_db_asset_insert.cc \
