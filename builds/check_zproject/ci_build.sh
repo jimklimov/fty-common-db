@@ -9,7 +9,7 @@ set -ex
 # Note: certain zproject scripts that deal with deeper dependencies expect that
 # such checkouts are directly in the same parent directory as "this" project.
 cd "$REPO_DIR/.."
-git clone --quiet --depth 1 -b 2.2-FTY-master https://github.com/42ity/cxxtools.git cxxtools
+git clone --quiet --depth 1 https://github.com/42ity/cxxtools.git cxxtools
 git clone --quiet --depth 1 https://github.com/42ity/tntdb.git tntdb
 git clone --quiet --depth 1 https://github.com/42ity/fty-common-logging.git fty-common-logging
 git clone --quiet --depth 1 https://github.com/42ity/fty-common.git fty-common
