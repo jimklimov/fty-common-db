@@ -134,3 +134,6 @@ nbproject/
 builds/cmake/
 CMake*
 *.cmake
+
+# Manual addition, may be added back if a travis plan is created
+builds/abi-compliance-checker
