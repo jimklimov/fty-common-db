@@ -70,6 +70,8 @@ id_to_name_ext_name (uint32_t asset_id)
 int64_t
 name_to_asset_id (std::string asset_name)
 {
+    if(asset_name.empty()) return 0;
+
     try
     {
         int64_t id = 0;
