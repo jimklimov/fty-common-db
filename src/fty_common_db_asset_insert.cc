@@ -581,6 +581,28 @@ insert_into_asset_link (tntdb::Connection &conn,
 }
 
 db_reply_t
+insert_into_new_asset_links (tntdb::Connection &conn,
+                            std::vector <new_link_t> const &links)
+{
+    std::vector<link_t> oldLinks;
+
+    for(const auto & l : links)
+    {
+        link_t oldLink;
+
+        oldLink.src = DBAssets::name_to_asset_id(l.src);
+        oldLink.dest = DBAssets::name_to_asset_id(l.dest);
+        oldLink.src_out = l.src_out;
+        oldLink.dest_in = l.dest_in;
+        oldLink.type = l.type;
+
+        oldLinks.emplace_back(oldLink);
+    }
+
+    return insert_into_asset_links(conn, oldLinks);
+}
+
+db_reply_t
 insert_into_asset_links (tntdb::Connection &conn,
                          std::vector <link_t> const &links)
 {

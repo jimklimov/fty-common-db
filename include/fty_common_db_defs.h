@@ -99,6 +99,15 @@ typedef struct _asset_link
     uint16_t    type;    //!< link type id
 } link_t;
 
+typedef struct _new_asset_link
+{
+    std::string    src;     //!< id of src element
+    std::string    dest;    //!< id of dest element
+    char        *src_out; //!< outlet in src
+    char        *dest_in; //!< inlet in dest
+    uint16_t    type;    //!< link type id
+} new_link_t;
+
 struct db_tmp_link_t {
     uint32_t         src_id;
     uint32_t         dest_id;
