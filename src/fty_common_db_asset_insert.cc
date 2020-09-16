@@ -593,7 +593,7 @@ insert_into_new_asset_links (tntdb::Connection &conn,
         oldLink.src = DBAssets::name_to_asset_id(l.src);
         oldLink.dest = DBAssets::name_to_asset_id(l.dest);
         oldLink.src_out = l.src_out;
-        oldLink.dest_in = l.dest_in);
+        oldLink.dest_in = l.dest_in;
         oldLink.type = l.type;
 
         oldLinks.emplace_back(oldLink);
