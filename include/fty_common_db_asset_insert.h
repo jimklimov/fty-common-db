@@ -80,6 +80,12 @@ namespace DBAssetsInsert {
     insert_into_asset_links (tntdb::Connection &conn,
                              std::vector <link_t> const &links);
 
+// insert_into_asset_links: insert info about more powerlinks
+// returns error if input params are unacceptable or any insert went wrong
+    db_reply_t
+    insert_into_new_asset_links (tntdb::Connection &conn,
+                             std::vector <new_link_t> const &links);
+
 //////////////////////////////////////////////////////////////////////////
 // insert_into_asset_element: insert info about an asset
 // returns error if input params are unacceptable or insert went wrong
